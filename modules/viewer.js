@@ -259,6 +259,11 @@ export async function createCrystalViewer(container, {
     orthographicCamera.updateProjectionMatrix();
   }
 
+  function framingFactor(viewAspect) {
+    const halfFov = THREE.MathUtils.degToRad(perspectiveCamera.fov / 2);
+    return 1 / Math.sin(Math.min(halfFov, Math.atan(Math.tan(halfFov) * Math.max(viewAspect, 0.45))));
+  }
+
   function resize() {
     if (!renderer || destroyed || !webglAvailable) return;
     const width = Math.max(1, container.clientWidth);
@@ -268,15 +273,30 @@ export async function createCrystalViewer(container, {
     aspect = width / height;
     perspectiveCamera.aspect = aspect;
     perspectiveCamera.updateProjectionMatrix();
+    if (structure && controls && Math.abs(previousAspect - aspect) > 0.0001) {
+      // Layout changes (including opening display settings) retain the orbit
+      // and the user's zoom relative to the fitted view. Only compensate when
+      // a narrower aspect ratio reduces the available horizontal field.
+      const ratio = framingFactor(aspect) / framingFactor(previousAspect);
+      if (camera.isOrthographicCamera) {
+        orthographicHalfHeight *= ratio;
+      } else if (Math.abs(ratio - 1) > 0.000001) {
+        camera.position.sub(controls.target).multiplyScalar(ratio).add(controls.target);
+        controls.minDistance *= ratio;
+        controls.maxDistance *= ratio;
+        camera.far = Math.max(camera.far, camera.position.distanceTo(controls.target) + frameRadius * 12);
+        camera.updateProjectionMatrix();
+        controls.update();
+      }
+    }
     updateOrthographicFrustum();
-    if (structure && Math.abs(previousAspect - aspect) > 0.01) reset();
     requestRender();
   }
 
   function reset() {
     if (destroyed || !structure || !controls) return;
     const halfFov = THREE.MathUtils.degToRad(perspectiveCamera.fov / 2);
-    const distance = frameRadius / Math.sin(Math.min(halfFov, Math.atan(Math.tan(halfFov) * Math.max(aspect, 0.45)))) * 1.12;
+    const distance = frameRadius * framingFactor(aspect) * 1.12;
     camera.position.copy(target).addScaledVector(HOME_DIRECTION, distance);
     camera.near = Math.max(0.005, frameRadius * 0.005);
     camera.far = Math.max(100, distance + frameRadius * 12);
