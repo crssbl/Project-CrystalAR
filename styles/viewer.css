@@ -1,0 +1,88 @@
+.crystal-viewer {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-width: 0;
+  min-height: 280px;
+  overflow: hidden;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.crystal-viewer:focus-visible {
+  outline: 2px solid #087f86;
+  outline-offset: -4px;
+  border-radius: inherit;
+}
+
+.viewer-canvas {
+  position: absolute;
+  display: block;
+  width: 100%;
+  height: 100%;
+  inset: 0;
+  touch-action: none;
+  cursor: grab;
+}
+
+.viewer-canvas:active { cursor: grabbing; }
+.crystal-viewer--compact .viewer-canvas { cursor: default; }
+.crystal-viewer--compact { min-height: 200px; }
+
+.viewer-fallback {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 4%;
+}
+
+.viewer-canvas[hidden],
+.viewer-fallback[hidden],
+.viewer-interaction-hint[hidden] { display: none; }
+
+.viewer-interaction-hint {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+  max-width: calc(100% - 24px);
+  transform: translateX(-50%);
+  color: #527370;
+  background: rgb(246 252 249 / 82%);
+  border: 1px solid rgb(39 100 94 / 10%);
+  padding: 8px 12px;
+  border-radius: 30px;
+  font-size: 11px;
+  font-weight: 450;
+  line-height: 1.4;
+  letter-spacing: 0.015em;
+  pointer-events: none;
+  backdrop-filter: blur(8px);
+}
+
+.viewer-interaction-hint svg { flex: 0 0 auto; width: 16px; height: 16px; }
+
+.viewer-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 600px) {
+  .viewer-interaction-hint { bottom: 12px; padding: 7px 10px; font-size: 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crystal-viewer *, .crystal-viewer *::before, .crystal-viewer *::after { animation: none !important; }
+}

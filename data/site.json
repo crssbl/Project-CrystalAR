@@ -1,0 +1,63 @@
+{
+  "title": "CrystalAR: Autoregressive Modeling for Symmetric Crystal Generation",
+  "description": "A unified autoregressive framework for Wyckoff templates, lattice parameters, and symmetry-constrained coordinates.",
+  "paperPath": "assets/CrystalAR.pdf",
+  "codeUrl": "https://github.com/crssbl/CrystalAR",
+  "copy": {
+    "heroDescription": "From a symmetry template to a complete crystal.\nOne model. One autoregressive sequence.",
+    "methodTitle": "Symmetry sets the stage.\nAutoregression fills it in.",
+    "methodIntro": "CrystalAR generates a symmetry-constrained template, a lattice, and coordinates in sequence. Continuous geometry becomes a search through increasingly precise regions.",
+    "crystalsTitle": "Generated.\nReady to explore.",
+    "crystalsIntro": "Ten real outputs from CrystalAR, spanning different compositions and space groups. Rotate a crystal, inspect its symmetry, or download its structure.",
+    "resultsTitle": "Explore new templates.\nKeep the structure.",
+    "resultsIntro": "Evaluate the model from three complementary perspectives: symmetry-aware exploration, material quality, and recovery of known structures.",
+    "citationTitle": "Continue the exploration.",
+    "citationIntro": "The paper describes the representation, architecture, evaluation protocols, and limitations in detail."
+  },
+  "authors": [
+    {"name":"Ziqiao Meng","affiliation":1,"equal":true,"url":"https://openreview.net/profile?id=~Ziqiao_Meng1"},
+    {"name":"Rongsheng Chen","affiliation":2,"equal":true,"url":"https://openreview.net/profile?id=~Rongsheng_Chen1"},
+    {"name":"Zhi Zheng","affiliation":1,"equal":true,"url":"https://openreview.net/profile?id=~Zhi_Zheng2"},
+    {"name":"Nikita Kazeev","affiliation":1,"url":"https://openreview.net/profile?id=~Nikita_Kazeev1"},
+    {"name":"Zhenkun Wang","affiliation":2,"url":"https://openreview.net/profile?id=~Zhenkun_Wang1"},
+    {"name":"Andrey E Ustyuzhanin","affiliation":3,"url":"https://openreview.net/profile?id=~Andrey_E_Ustyuzhanin1"},
+    {"name":"Wee Sun Lee","affiliation":1,"url":"https://openreview.net/profile?id=~Wee_Sun_Lee1"}
+  ],
+  "affiliations":["National University of Singapore","Southern University of Science and Technology","Constructor University"],
+  "metrics": {
+    "source": "CrystalAR manuscript, Tables 1–3, pp. 7–9",
+    "symmetry": [
+      {"model":"DiffCSP","templates":48,"ssun":0.05},
+      {"model":"DiffCSP++","templates":5,"ssun":0.19},
+      {"model":"WyFormer","templates":190,"ssun":0.13},
+      {"model":"SGEquiDiff","templates":386,"ssun":0.11},
+      {"model":"SymmCD","templates":215,"ssun":0.09},
+      {"model":"CrystalFormer","templates":89,"ssun":0},
+      {"model":"CrystalAR (SV)","templates":268,"ssun":0.19,"variant":true},
+      {"model":"CrystalAR","templates":161,"ssun":0.28,"ssunError":0.04,"ours":true}
+    ],
+    "quality": {
+      "without": [
+        {"model":"DiffCSP","stable":2.3,"sun":0.1,"sunCount":"3"},
+        {"model":"DiffCSP++","stable":1.0,"sun":0.2,"sunCount":"4"},
+        {"model":"CrystalFormer†","stable":1.4,"sun":0.0,"sunCount":"0"},
+        {"model":"SymmCD","stable":1.4,"sun":0.1,"sunCount":"2"},
+        {"model":"CrystalAR","stable":6.0,"sun":0.3,"sunCount":"7 ± 1","ours":true}
+      ],
+      "with": [
+        {"model":"MatterGen","stable":2.0,"sun":0.2,"sunCount":"6"},
+        {"model":"PLaID++","stable":12.4,"sun":1.0,"sunCount":"26"},
+        {"model":"WyFormer","stable":0.5,"sun":0.1,"sunCount":"3"},
+        {"model":"WyFormer-DFT","stable":3.7,"sun":0.4,"sunCount":"9"},
+        {"model":"CrystalAR","stable":13.7,"sun":0.9,"sunCount":"22 ± 1","ours":true}
+      ]
+    },
+    "csp": [
+      {"model":"DiffCSP","mp20":{"one":51.49,"twenty":77.93,"rmseOne":0.0631,"rmseTwenty":0.0492},"mpts52":{"one":12.19,"twenty":34.02,"rmseOne":0.1786,"rmseTwenty":0.1749}},
+      {"model":"CrystalFlow","mp20":{"one":62.02,"twenty":78.34,"rmseOne":0.0710,"rmseTwenty":0.0577},"mpts52":{"one":21.00,"twenty":37.81,"rmseOne":0.1613,"rmseTwenty":0.1584}},
+      {"model":"OMatG","mp20":{"one":63.75,"twenty":null,"rmseOne":0.0720},"mpts52":{"one":25.15,"twenty":null,"rmseOne":0.1931}},
+      {"model":"CrystalFormer","mp20":{"one":29.62,"twenty":64.56,"rmseOne":0.0619,"rmseTwenty":0.0835},"mpts52":{"one":null,"twenty":null}},
+      {"model":"CrystalAR","ours":true,"mp20":{"one":62.92,"twenty":74.55,"rmseOne":0.0585,"rmseTwenty":0.0655},"mpts52":{"one":25.25,"twenty":35.71,"rmseOne":0.1305,"rmseTwenty":0.1454}}
+    ]
+  }
+}
