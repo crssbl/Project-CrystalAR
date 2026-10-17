@@ -56,7 +56,8 @@ function clearGeometry(group) {
 /**
  * Local, offline crystal renderer. All positions come from the supplied structure;
  * periodic images are display copies and never change the source atom count.
- * Sphere radii are illustrative. No chemical connectivity is inferred.
+ * Sphere radii are illustrative. Sticks use the supplied geometric contacts;
+ * they do not imply chemical bond orders or independently inferred connectivity.
  */
 export async function createCrystalViewer(container, {
   interactive = true, compact = false, onReady,
@@ -79,11 +80,23 @@ export async function createCrystalViewer(container, {
   let frameRadius = 1;
   let baseAtoms = [];
   let displayedCount = 0;
+  let contactCount = 0;
+  let representation = 'spheres';
+  let atomScale = 1;
+  let bondScale = 1;
+  let theme = 'light';
+  let projection = 'perspective';
+  let aspect = 1;
+  let orthographicHalfHeight = 1;
+  const THEMES = { light: '#f2f7f5', dark: '#12242b' };
+  const REPRESENTATIONS = new Set(['spheres', 'ball-and-stick', 'sticks', 'space-filling']);
 
   container.classList.add('crystal-viewer');
   container.querySelectorAll('.viewer-loading').forEach(placeholder => placeholder.remove());
   container.classList.toggle('crystal-viewer--compact', compact);
   container.dataset.viewerState = 'loading';
+  container.dataset.projection = projection;
+  container.dataset.representation = representation;
   container.setAttribute('role', 'group');
   container.setAttribute('aria-label', interactive ? 'Interactive three-dimensional crystal structure' : 'Three-dimensional crystal structure');
   if (interactive) container.tabIndex = 0;
@@ -119,22 +132,83 @@ export async function createCrystalViewer(container, {
   }
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(34, 1, 0.01, 1000);
+  const perspectiveCamera = new THREE.PerspectiveCamera(34, 1, 0.01, 1000);
+  const orthographicCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.01, 1000);
+  let camera = perspectiveCamera;
   const atomGroup = new THREE.Group();
+  const contactGroup = new THREE.Group();
   const cellGroup = new THREE.Group();
-  scene.add(atomGroup, cellGroup);
-  const sphereGeometry = new THREE.SphereGeometry(1, 32, 24);
+  scene.add(atomGroup, contactGroup, cellGroup);
+  const sphereGeometry = new THREE.SphereGeometry(1, compact ? 32 : 40, compact ? 24 : 32);
+  const cylinderGeometry = new THREE.CylinderGeometry(1, 1, 1, compact ? 16 : 24, 1, false);
   const target = new THREE.Vector3();
-  scene.add(new THREE.HemisphereLight(0xf7ffff, 0x5f7975, 2.7));
-  const keyLight = new THREE.DirectionalLight(0xffffff, 3.2);
+
+  // A small, local studio environment supplies broad reflections without any
+  // downloaded textures. The reflection lights never encode scientific data.
+  const studioCanvas = document.createElement('canvas');
+  studioCanvas.width = 256;
+  studioCanvas.height = 128;
+  const studioContext = studioCanvas.getContext('2d');
+  let studioEnvironment = null;
+  if (studioContext) {
+    studioContext.fillStyle = '#607177';
+    studioContext.fillRect(0, 0, 256, 128);
+    for (const [x, y, radius, opacity] of [[62, 30, 54, 1], [182, 45, 38, 0.9], [120, 112, 46, 0.45]]) {
+      const glow = studioContext.createRadialGradient(x, y, 2, x, y, radius);
+      glow.addColorStop(0, `rgba(255,255,255,${opacity})`);
+      glow.addColorStop(0.4, `rgba(242,255,255,${opacity * 0.72})`);
+      glow.addColorStop(1, 'rgba(255,255,255,0)');
+      studioContext.fillStyle = glow;
+      studioContext.fillRect(0, 0, 256, 128);
+    }
+    studioEnvironment = new THREE.CanvasTexture(studioCanvas);
+    studioEnvironment.mapping = THREE.EquirectangularReflectionMapping;
+    studioEnvironment.colorSpace = THREE.SRGBColorSpace;
+    scene.environment = studioEnvironment;
+    scene.environmentIntensity = 0.8;
+  }
+  const ambientLight = new THREE.HemisphereLight(0xf3ffff, 0x6b827d, 1.65);
+  scene.add(ambientLight);
+  const keyLight = new THREE.DirectionalLight(0xffffff, 2.8);
   keyLight.position.set(-3, 6, 5);
   scene.add(keyLight);
-  const edgeLight = new THREE.DirectionalLight(0xb7f1ee, 2.4);
+  const edgeLight = new THREE.DirectionalLight(0xb7f1ee, 2.0);
   edgeLight.position.set(5, 1, -4);
   scene.add(edgeLight);
-  const fillLight = new THREE.DirectionalLight(0xf4e9d2, 1.1);
+  const fillLight = new THREE.DirectionalLight(0xffedd7, 0.75);
   fillLight.position.set(-4, -2, -2);
   scene.add(fillLight);
+
+  function surfaceMaterial(color, isContact = false) {
+    return new THREE.MeshPhysicalMaterial({
+      color,
+      metalness: isContact ? 0.22 : 0.12,
+      roughness: representation === 'space-filling' ? 0.32 : 0.24,
+      clearcoat: 0.7,
+      clearcoatRoughness: 0.22,
+      envMapIntensity: theme === 'dark' ? 1.15 : 0.8,
+    });
+  }
+
+  function applyTheme() {
+    container.dataset.viewerTheme = theme;
+    // Keep the canvas transparent over the page's studio gradient. Exporting
+    // composites the same model onto an opaque theme-colored background.
+    scene.background = null;
+    ambientLight.intensity = theme === 'dark' ? 1.25 : 1.65;
+    edgeLight.intensity = theme === 'dark' ? 2.6 : 2;
+    for (const group of [atomGroup, contactGroup]) {
+      group.traverse(object => {
+        if (object.material) object.material.envMapIntensity = theme === 'dark' ? 1.15 : 0.8;
+      });
+    }
+    cellGroup.traverse(object => {
+      if (!object.material) return;
+      object.material.color.set(theme === 'dark' ? 0x70c5c9 : 0x278d91);
+      object.material.opacity = theme === 'dark' ? 0.56 : 0.43;
+    });
+    requestRender();
+  }
 
   function showFallback(reason = '3D rendering is unavailable. A static view is shown.') {
     webglAvailable = false;
@@ -177,32 +251,79 @@ export async function createCrystalViewer(container, {
     if (moving || controls.autoRotate || pendingPaints > 0) scheduleFrame();
   }
 
+  function updateOrthographicFrustum() {
+    orthographicCamera.left = -orthographicHalfHeight * aspect;
+    orthographicCamera.right = orthographicHalfHeight * aspect;
+    orthographicCamera.top = orthographicHalfHeight;
+    orthographicCamera.bottom = -orthographicHalfHeight;
+    orthographicCamera.updateProjectionMatrix();
+  }
+
   function resize() {
     if (!renderer || destroyed || !webglAvailable) return;
     const width = Math.max(1, container.clientWidth);
     const height = Math.max(1, container.clientHeight);
     renderer.setSize(width, height, false);
-    const previousAspect = camera.aspect;
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
-    if (structure && Math.abs(previousAspect - camera.aspect) > 0.01) reset();
+    const previousAspect = aspect;
+    aspect = width / height;
+    perspectiveCamera.aspect = aspect;
+    perspectiveCamera.updateProjectionMatrix();
+    updateOrthographicFrustum();
+    if (structure && Math.abs(previousAspect - aspect) > 0.01) reset();
     requestRender();
   }
 
   function reset() {
     if (destroyed || !structure || !controls) return;
-    const aspect = Math.max(camera.aspect, 0.45);
-    const halfFov = THREE.MathUtils.degToRad(camera.fov / 2);
-    const distance = frameRadius / Math.sin(Math.min(halfFov, Math.atan(Math.tan(halfFov) * aspect))) * 1.12;
+    const halfFov = THREE.MathUtils.degToRad(perspectiveCamera.fov / 2);
+    const distance = frameRadius / Math.sin(Math.min(halfFov, Math.atan(Math.tan(halfFov) * Math.max(aspect, 0.45)))) * 1.12;
     camera.position.copy(target).addScaledVector(HOME_DIRECTION, distance);
     camera.near = Math.max(0.005, frameRadius * 0.005);
     camera.far = Math.max(100, distance + frameRadius * 12);
+    camera.zoom = 1;
+    if (camera.isOrthographicCamera) {
+      orthographicHalfHeight = distance * Math.tan(halfFov);
+      updateOrthographicFrustum();
+    }
     camera.updateProjectionMatrix();
     controls.target.copy(target);
     controls.minDistance = frameRadius * 1.12;
     controls.maxDistance = frameRadius * 14;
+    controls.minZoom = 0.3;
+    controls.maxZoom = 5;
     controls.update();
     controls.saveState();
+    requestRender();
+  }
+
+  function setProjection(value) {
+    if (!['perspective', 'orthographic'].includes(value) || value === projection) return;
+    const nextCamera = value === 'orthographic' ? orthographicCamera : perspectiveCamera;
+    nextCamera.position.copy(camera.position);
+    nextCamera.quaternion.copy(camera.quaternion);
+    nextCamera.up.copy(camera.up);
+    nextCamera.near = camera.near;
+    nextCamera.far = camera.far;
+    const offset = camera.position.clone().sub(controls?.target || target);
+    const halfFov = THREE.MathUtils.degToRad(perspectiveCamera.fov / 2);
+    if (value === 'orthographic') {
+      orthographicHalfHeight = Math.max(0.01, offset.length() * Math.tan(halfFov));
+      nextCamera.zoom = 1;
+      updateOrthographicFrustum();
+    } else if (offset.lengthSq() > 0) {
+      // Match the scale of the current orthographic view at the orbit target.
+      const distance = orthographicHalfHeight / orthographicCamera.zoom / Math.tan(halfFov);
+      nextCamera.position.copy(controls?.target || target).add(offset.normalize().multiplyScalar(distance));
+    }
+    camera = nextCamera;
+    projection = value;
+    camera.updateProjectionMatrix();
+    if (controls) {
+      controls.object = camera;
+      controls.update();
+    }
+    container.dataset.projection = projection;
+    updateDescription();
     requestRender();
   }
 
@@ -212,28 +333,35 @@ export async function createCrystalViewer(container, {
     const group = sample.spaceGroup?.symbol || sample.spaceGroup?.number || 'not specified';
     const count = baseAtoms.length;
     const copies = Math.max(0, displayedCount - count);
-    status.textContent = `${formula}. Space group ${group}. ${count} atoms in the source unit cell.${periodic && copies ? ` ${copies} additional periodic display copies.` : ''} Unit-cell edges ${cellVisible ? 'shown' : 'hidden'}.`;
+    status.textContent = `${formula}. Space group ${group}. ${count} atoms in the source unit cell.${periodic && copies ? ` ${copies} additional periodic display copies.` : ''} Unit-cell edges ${cellVisible ? 'shown' : 'hidden'}. ${representation.replaceAll('-', ' ')} representation, ${projection} projection.${contactGroup.visible ? ` ${contactCount} geometric near-neighbor contacts shown; these do not imply chemical bond orders.` : ''}`;
     container.setAttribute('aria-label', `${interactive ? 'Interactive ' : ''}${formula} crystal, ${count} source atoms, space group ${group}`);
   }
 
-  function rebuildAtoms() {
+  function rebuildAtoms({ fit = false } = {}) {
     if (!structure || !webglAvailable) return;
     clearGeometry(atomGroup);
+    clearGeometry(contactGroup);
     const atoms = periodic && structure.displayAtoms?.length ? structure.displayAtoms : baseAtoms;
     const validAtoms = atoms.filter(atom => finiteVector(atom.cart));
     displayedCount = validAtoms.length;
     let minimumDistance = Infinity;
-    // The separation cap is visual only. It prevents large atoms from occluding a whole cell.
+    // This separation cap applies only to the illustrative small-sphere styles.
     for (let i = 0; i < Math.min(baseAtoms.length, 250); i++) {
       for (let j = i + 1; j < Math.min(baseAtoms.length, 250); j++) {
         const distance = new THREE.Vector3(...baseAtoms[i].cart).distanceTo(new THREE.Vector3(...baseAtoms[j].cart));
         if (distance > 0.1) minimumDistance = Math.min(minimumDistance, distance);
       }
     }
+    const contactRadius = 0.075 * bondScale;
+    const colorFor = atom => /^#[a-f\d]{6}$/i.test(atom.color) ? atom.color : '#31979c';
     const groups = new Map();
     for (const atom of validAtoms) {
-      const color = /^#[a-f\d]{6}$/i.test(atom.color) ? atom.color : '#31979c';
-      const radius = Math.min(0.46 * Math.pow(ELEMENT_RADII[atom.element] || 1.2, 0.45), minimumDistance * 0.33);
+      const color = colorFor(atom);
+      const illustrativeRadius = Math.min(0.46 * Math.pow(ELEMENT_RADII[atom.element] || 1.2, 0.45), minimumDistance * 0.33);
+      let radius = illustrativeRadius * atomScale;
+      if (representation === 'ball-and-stick') radius *= 0.68;
+      if (representation === 'sticks') radius = contactRadius * 1.16;
+      if (representation === 'space-filling') radius = (ELEMENT_RADII[atom.element] || 1.2) * 0.88 * atomScale;
       const key = `${atom.element}:${color}:${radius.toFixed(4)}`;
       if (!groups.has(key)) groups.set(key, { color, radius, atoms: [] });
       groups.get(key).atoms.push(atom);
@@ -243,8 +371,7 @@ export async function createCrystalViewer(container, {
     const orientation = new THREE.Quaternion();
     const scale = new THREE.Vector3();
     for (const entry of groups.values()) {
-      const material = new THREE.MeshStandardMaterial({ color: entry.color, metalness: 0.16, roughness: 0.25 });
-      const mesh = new THREE.InstancedMesh(sphereGeometry, material, entry.atoms.length);
+      const mesh = new THREE.InstancedMesh(sphereGeometry, surfaceMaterial(entry.color), entry.atoms.length);
       mesh.userData.sharedGeometry = true;
       for (let i = 0; i < entry.atoms.length; i++) {
         position.fromArray(entry.atoms[i].cart);
@@ -256,12 +383,68 @@ export async function createCrystalViewer(container, {
       mesh.computeBoundingSphere();
       atomGroup.add(mesh);
     }
-    const corners = cellVertices(structure.lattice);
-    const bounds = new THREE.Box3().setFromPoints([...corners, ...validAtoms.map(atom => new THREE.Vector3(...atom.cart))]);
-    bounds.getCenter(target);
-    frameRadius = Math.max(1, bounds.getBoundingSphere(new THREE.Sphere()).radius + 0.45);
+
+    // Each supplied segment must terminate on two currently displayed atoms.
+    // This removes boundary contacts when periodic copies are hidden, rather
+    // than drawing dangling sticks or silently generating new connectivity.
+    const positionKey = xyz => xyz.map(x => Math.round(x * 100000)).join(',');
+    const visibleAtomAt = xyz => validAtoms.find(atom => atom.cart.every((x, axis) => Math.abs(x - xyz[axis]) < 0.00001));
+    const uniqueContacts = new Set();
+    const halvesByColor = new Map();
+    contactCount = 0;
+    for (const contact of structure.bonds || []) {
+      if (!finiteVector(contact.start) || !finiteVector(contact.end)) continue;
+      const startAtom = visibleAtomAt(contact.start);
+      const endAtom = visibleAtomAt(contact.end);
+      if (!startAtom || !endAtom) continue;
+      const key = [positionKey(startAtom.cart), positionKey(endAtom.cart)].sort().join('|');
+      if (uniqueContacts.has(key)) continue;
+      const start = new THREE.Vector3(...startAtom.cart);
+      const end = new THREE.Vector3(...endAtom.cart);
+      if (start.distanceToSquared(end) < 1e-10) continue;
+      uniqueContacts.add(key);
+      contactCount++;
+      const middle = start.clone().lerp(end, 0.5);
+      for (const [from, to, atom] of [[start, middle, startAtom], [middle, end, endAtom]]) {
+        const color = colorFor(atom);
+        if (!halvesByColor.has(color)) halvesByColor.set(color, []);
+        halvesByColor.get(color).push({ from, to });
+      }
+    }
+    const up = new THREE.Vector3(0, 1, 0);
+    const direction = new THREE.Vector3();
+    for (const [color, halves] of halvesByColor) {
+      const mesh = new THREE.InstancedMesh(cylinderGeometry, surfaceMaterial(color, true), halves.length);
+      mesh.userData.sharedGeometry = true;
+      for (let i = 0; i < halves.length; i++) {
+        const { from, to } = halves[i];
+        direction.copy(to).sub(from);
+        const length = direction.length();
+        position.copy(from).lerp(to, 0.5);
+        orientation.setFromUnitVectors(up, direction.normalize());
+        scale.set(contactRadius, length, contactRadius);
+        matrix.compose(position, orientation, scale);
+        mesh.setMatrixAt(i, matrix);
+      }
+      mesh.instanceMatrix.needsUpdate = true;
+      mesh.computeBoundingSphere();
+      contactGroup.add(mesh);
+    }
+    contactGroup.visible = representation === 'ball-and-stick' || representation === 'sticks';
+    container.dataset.representation = representation;
+    container.dataset.visibleAtomCount = String(displayedCount);
+    container.dataset.contactCount = String(contactCount);
+    if (fit) {
+      const corners = cellVertices(structure.lattice);
+      const bounds = new THREE.Box3().setFromPoints([...corners, ...validAtoms.map(atom => new THREE.Vector3(...atom.cart))]);
+      bounds.getCenter(target);
+      // Reserve the same framing margin across modes so changing a display
+      // option preserves the user's orientation and scale.
+      frameRadius = Math.max(1, bounds.getBoundingSphere(new THREE.Sphere()).radius + 1.15);
+      reset();
+    }
     updateDescription();
-    reset();
+    requestRender();
   }
 
   function rebuildCell() {
@@ -274,7 +457,7 @@ export async function createCrystalViewer(container, {
       if (i < j) vertices.push(points[i], points[j]);
     }
     const geometry = new THREE.BufferGeometry().setFromPoints(vertices);
-    const material = new THREE.LineBasicMaterial({ color: 0x108f95, transparent: true, opacity: 0.48, depthWrite: false });
+    const material = new THREE.LineBasicMaterial({ color: theme === 'dark' ? 0x70c5c9 : 0x278d91, transparent: true, opacity: theme === 'dark' ? 0.56 : 0.43, depthWrite: false });
     const edges = new THREE.LineSegments(geometry, material);
     edges.renderOrder = 1;
     cellGroup.add(edges);
@@ -292,8 +475,14 @@ export async function createCrystalViewer(container, {
       case 'ArrowRight': spherical.theta += angle; break;
       case 'ArrowUp': spherical.phi -= angle; break;
       case 'ArrowDown': spherical.phi += angle; break;
-      case '+': case '=': spherical.radius *= 0.88; break;
-      case '-': case '_': spherical.radius *= 1.14; break;
+      case '+': case '=':
+        if (camera.isOrthographicCamera) camera.zoom = Math.min(controls.maxZoom, camera.zoom / 0.88);
+        else spherical.radius *= 0.88;
+        break;
+      case '-': case '_':
+        if (camera.isOrthographicCamera) camera.zoom = Math.max(controls.minZoom, camera.zoom / 1.14);
+        else spherical.radius *= 1.14;
+        break;
       case 'Home': case '0': reset(); event.preventDefault(); return;
       default: handled = false;
     }
@@ -302,6 +491,7 @@ export async function createCrystalViewer(container, {
     spherical.makeSafe();
     spherical.radius = THREE.MathUtils.clamp(spherical.radius, controls.minDistance, controls.maxDistance);
     camera.position.copy(controls.target).add(new THREE.Vector3().setFromSpherical(spherical));
+    camera.updateProjectionMatrix();
     controls.update();
     requestRender();
   }
@@ -324,7 +514,9 @@ export async function createCrystalViewer(container, {
     renderer.domElement.hidden = false;
     if (hint) hint.hidden = false;
     container.dataset.viewerState = 'ready';
+    rebuildCell();
     rebuildAtoms();
+    applyTheme();
     resize();
   }
 
@@ -338,7 +530,7 @@ export async function createCrystalViewer(container, {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.18;
+    renderer.toneMappingExposure = 1.12;
     renderer.setClearColor(0x000000, 0);
     renderer.domElement.className = 'viewer-canvas';
     renderer.domElement.setAttribute('aria-hidden', 'true');
@@ -355,6 +547,7 @@ export async function createCrystalViewer(container, {
     controls.zoomSpeed = 0.75;
     controls.autoRotateSpeed = 0.42;
     controls.addEventListener('change', requestRender);
+    applyTheme();
     resize();
   } catch (error) {
     showFallback();
@@ -394,7 +587,7 @@ export async function createCrystalViewer(container, {
         return;
       }
       rebuildCell();
-      rebuildAtoms();
+      rebuildAtoms({ fit: true });
       container.dataset.viewerState = 'ready';
       requestRender();
     },
@@ -408,6 +601,44 @@ export async function createCrystalViewer(container, {
       periodic = Boolean(value);
       if (webglAvailable) rebuildAtoms();
       else updateDescription();
+    },
+    setRepresentation(value) {
+      if (!REPRESENTATIONS.has(value) || representation === value) return;
+      representation = value;
+      rebuildAtoms();
+    },
+    setAtomScale(value) {
+      if (!Number.isFinite(Number(value))) return;
+      atomScale = THREE.MathUtils.clamp(Number(value), 0.65, 1.45);
+      rebuildAtoms();
+    },
+    setBondScale(value) {
+      if (!Number.isFinite(Number(value))) return;
+      bondScale = THREE.MathUtils.clamp(Number(value), 0.6, 1.8);
+      rebuildAtoms();
+    },
+    setTheme(value) {
+      if (!Object.hasOwn(THEMES, value)) return;
+      theme = value;
+      applyTheme();
+    },
+    setProjection,
+    exportImage() {
+      if (destroyed || !webglAvailable || !renderer || !structure) return null;
+      try {
+        renderer.render(scene, camera);
+        const image = document.createElement('canvas');
+        image.width = renderer.domElement.width;
+        image.height = renderer.domElement.height;
+        const context = image.getContext('2d');
+        if (!context) return null;
+        context.fillStyle = THEMES[theme];
+        context.fillRect(0, 0, image.width, image.height);
+        context.drawImage(renderer.domElement, 0, 0);
+        return image.toDataURL('image/png');
+      } catch {
+        return null;
+      }
     },
     reset,
     setAutoRotate(value) {
@@ -424,8 +655,11 @@ export async function createCrystalViewer(container, {
       document.removeEventListener('visibilitychange', onVisibilityChange);
       motionPreference.removeEventListener('change', onMotionPreferenceChange);
       clearGeometry(atomGroup);
+      clearGeometry(contactGroup);
       clearGeometry(cellGroup);
       sphereGeometry.dispose();
+      cylinderGeometry.dispose();
+      studioEnvironment?.dispose();
       controls?.dispose();
       if (renderer) {
         renderer.domElement.removeEventListener('webglcontextlost', onContextLost);
@@ -438,7 +672,7 @@ export async function createCrystalViewer(container, {
       fallback.remove();
       hint?.remove();
       container.classList.remove('crystal-viewer', 'crystal-viewer--compact');
-      container.removeAttribute('data-viewer-state');
+      for (const name of ['data-viewer-state', 'data-viewer-theme', 'data-representation', 'data-projection', 'data-visible-atom-count', 'data-contact-count']) container.removeAttribute(name);
       container.removeAttribute('aria-label');
       container.removeAttribute('aria-describedby');
       container.removeAttribute('role');

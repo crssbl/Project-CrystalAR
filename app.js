@@ -139,12 +139,20 @@ async function mountCrystals() {
   };
   $('#sample-list').innerHTML = samples.map((s, i) => `<button class="sample-button" type="button" data-sample="${escapeHTML(s.id)}" aria-pressed="false" aria-label="Explore ${escapeHTML(s.formula)}, space group ${s.spaceGroup.number}"><span class="sample-order">${String(i+1).padStart(2,'0')}</span><img src="${escapeHTML(s.thumbnailPath)}" alt="" width="100" height="70" loading="lazy"><span class="sample-label">${formulaHTML(s.formula)}</span></button>`).join('');
   const viewer = await createCrystalViewer($('#crystal-viewer'), {interactive:true});
+  let representation = 'ball-and-stick';
+  viewer.setRepresentation(representation);
+  viewer.setTheme('dark');
   const syncViewerControls = () => {
     const fallback = $('#crystal-viewer').dataset.viewerState === 'fallback';
-    ['#show-cell','#show-periodic','#reset-camera'].forEach(selector => { $(selector).disabled = fallback; });
+    document.querySelectorAll('.representation-controls button, .studio-switch button, .viewer-options input, .display-settings input, .display-settings select, .stage-actions button').forEach(control => { control.disabled = fallback; });
+    $('#bond-scale').disabled = fallback || !['ball-and-stick','sticks'].includes(representation);
+    $('#atom-scale').disabled = fallback || representation === 'sticks';
     $('.interaction-hint').textContent = fallback
       ? 'Static image · 3D view unavailable in this browser'
       : 'Drag to rotate · Scroll or pinch to zoom';
+    $('#contact-note').textContent = ['ball-and-stick','sticks'].includes(representation)
+      ? 'Sticks show geometric near-neighbor contacts.'
+      : 'Sphere sizes are illustrative; coordinates are unchanged.';
   };
   new MutationObserver(syncViewerControls).observe($('#crystal-viewer'), {attributes:true,attributeFilter:['data-viewer-state']});
   let currentSample;
@@ -190,6 +198,48 @@ async function mountCrystals() {
   $('#reset-camera').addEventListener('click', () => viewer.reset());
   $('#show-cell').addEventListener('change', (event) => viewer.setCell(event.target.checked));
   $('#show-periodic').addEventListener('change', (event) => viewer.setPeriodic(event.target.checked));
+  $('#auto-rotate').addEventListener('change', (event) => viewer.setAutoRotate(event.target.checked));
+  document.querySelectorAll('[data-representation]').forEach(button => button.addEventListener('click', () => {
+    representation = button.dataset.representation;
+    viewer.setRepresentation(representation);
+    document.querySelectorAll('[data-representation]').forEach(b => b.setAttribute('aria-pressed', String(b === button)));
+    syncViewerControls();
+    $('#crystal-status').textContent = `${button.textContent.trim()} representation selected.`;
+  }));
+  document.querySelectorAll('.studio-switch [data-viewer-theme]').forEach(button => button.addEventListener('click', () => {
+    const theme = button.dataset.viewerTheme;
+    viewer.setTheme(theme);
+    $('.explorer-stage').dataset.theme = theme;
+    document.querySelectorAll('.studio-switch [data-viewer-theme]').forEach(b => b.setAttribute('aria-pressed', String(b === button)));
+  }));
+  $('#atom-scale').addEventListener('input', event => {
+    const scale = Number(event.target.value);
+    viewer.setAtomScale(scale);
+    $('#atom-scale-value').textContent = `${scale.toFixed(2)}×`;
+  });
+  $('#bond-scale').addEventListener('input', event => {
+    const scale = Number(event.target.value);
+    viewer.setBondScale(scale);
+    $('#bond-scale-value').textContent = `${scale.toFixed(2)}×`;
+  });
+  $('#viewer-projection').addEventListener('change', event => viewer.setProjection(event.target.value));
+  $('#export-crystal').addEventListener('click', async () => {
+    if (!currentSample) return;
+    try {
+      const image = await viewer.exportImage();
+      if (!image) throw new Error('No rendered image available.');
+      const blob = await (await fetch(image)).blob();
+      const imageUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = imageUrl; link.download = `${currentSample.slug}-${representation}.png`;
+      document.body.append(link); link.click(); link.remove();
+      setTimeout(() => URL.revokeObjectURL(imageUrl), 30000);
+      $('#crystal-status').textContent = 'Crystal image saved as PNG.';
+    } catch (error) {
+      $('#crystal-status').textContent = 'Image export is unavailable in this browser. You can still download the CIF.';
+      console.warn('Crystal image export unavailable',error);
+    }
+  });
   $('#copy-crystal').addEventListener('click', async () => {
     if (!currentSample) return;
     const url = new URL(location.href); url.searchParams.set('crystal',currentSample.slug); url.hash = 'crystals';

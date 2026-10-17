@@ -20,10 +20,10 @@
     {"name":"Zhi Zheng","affiliation":1,"equal":true,"url":"https://openreview.net/profile?id=~Zhi_Zheng2"},
     {"name":"Nikita Kazeev","affiliation":1,"url":"https://openreview.net/profile?id=~Nikita_Kazeev1"},
     {"name":"Zhenkun Wang","affiliation":2,"url":"https://openreview.net/profile?id=~Zhenkun_Wang1"},
-    {"name":"Andrey E Ustyuzhanin","affiliation":3,"url":"https://openreview.net/profile?id=~Andrey_E_Ustyuzhanin1"},
+    {"name":"Andrey E Ustyuzhanin","affiliation":1,"url":"https://openreview.net/profile?id=~Andrey_E_Ustyuzhanin1"},
     {"name":"Wee Sun Lee","affiliation":1,"url":"https://openreview.net/profile?id=~Wee_Sun_Lee1"}
   ],
-  "affiliations":["National University of Singapore","Southern University of Science and Technology","Constructor University"],
+  "affiliations":["National University of Singapore","Southern University of Science and Technology"],
   "metrics": {
     "source": "CrystalAR manuscript, Tables 1–3, pp. 7–9",
     "symmetry": [
