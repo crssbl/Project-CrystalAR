@@ -21,7 +21,7 @@ function renderIdentity(site) {
   Object.entries(narrative).forEach(([key,selector]) => {
     if (site.copy?.[key]) $(selector).innerHTML = escapeHTML(site.copy[key]).replace(/\n/g,'<br>');
   });
-  document.querySelectorAll('a[href="assets/CrystalAR.pdf"]').forEach(a => { a.href = site.paperPath; });
+  document.querySelectorAll('a[data-paper-link]').forEach(a => { a.href = site.paperPath; });
   document.querySelectorAll('a[href="https://github.com/crssbl/CrystalAR"]').forEach(a => { a.href = site.codeUrl; });
   $('#authors').innerHTML = site.authors.map((a) => `<a href="${escapeHTML(a.url)}" target="_blank" rel="noopener">${escapeHTML(a.name)}<sup>${a.affiliation}${a.equal ? '*' : ''}</sup></a>`).join('');
   $('#affiliations').innerHTML = site.affiliations.map((name, i) => `<span><sup>${i + 1}</sup>${escapeHTML(name)}</span>`).join('');

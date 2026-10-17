@@ -1,7 +1,7 @@
 {
   "title": "CrystalAR: Autoregressive Modeling for Symmetric Crystal Generation",
   "description": "A unified autoregressive framework for Wyckoff templates, lattice parameters, and symmetry-constrained coordinates.",
-  "paperPath": "assets/CrystalAR.pdf",
+  "paperPath": "about:blank",
   "codeUrl": "https://github.com/crssbl/CrystalAR",
   "copy": {
     "heroDescription": "From a symmetry template to a complete crystal.\nOne model. One autoregressive sequence.",
