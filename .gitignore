@@ -1,0 +1,24 @@
+# Tooling
+node_modules/
+package-lock.json.bak
+
+# Test and audit output
+test-results/
+playwright-report/
+blob-report/
+.lighthouse/
+lighthouse-report*
+.pytest_cache/
+__pycache__/
+*.pyc
+
+# Machine-specific exporter configuration (absolute paths live here, never in git)
+tools/local_config.json
+
+# Review and agent tooling writes its notes here
+.agents/
+
+# Editors and OS
+.DS_Store
+.vscode/
+.idea/

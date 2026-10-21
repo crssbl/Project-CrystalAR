@@ -1,0 +1,25 @@
+{
+  "name": "project-crystalar",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Static project page for CrystalAR. No build step: the repository root is the site.",
+  "type": "module",
+  "scripts": {
+    "test:unit": "node --test tests/unit/",
+    "test:html": "html-validate index.html tools/poster.html",
+    "test:e2e": "playwright test",
+    "test": "node --test tests/unit/ && html-validate index.html tools/poster.html && playwright test",
+    "vendor:three": "node tools/vendor-three.mjs",
+    "vendor:fonts": "node tools/vendor-fonts.mjs",
+    "gallery": "node tools/render-gallery.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "esbuild": "0.28.2",
+    "html-validate": "10.0.0",
+    "three": "0.186.1"
+  },
+  "engines": {
+    "node": "^20.17.0 || >=22.0.0"
+  }
+}

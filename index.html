@@ -1,95 +1,446 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f8f9f5">
-  <meta name="description" content="CrystalAR unifies Wyckoff templates, lattice parameters, and symmetry-constrained coordinates in one autoregressive framework. Explore the method and real generated crystals.">
-  <title>CrystalAR · Symmetry, one sequence at a time</title>
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="preload" href="assets/fonts/sora-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles/main.css">
-  <link rel="stylesheet" href="styles/method.css">
-  <link rel="stylesheet" href="styles/viewer.css">
-  <script type="module" src="app.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CrystalAR · Autoregressive Modeling for Symmetric Crystal Generation</title>
+<meta name="description" content="CrystalAR generates symmetric crystals with one autoregressive model. Given a space group, it writes a Wyckoff template, a lattice, and coordinates refined coarse to fine.">
+<meta name="theme-color" content="#F3F5F7">
+<meta name="color-scheme" content="light">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/sora-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/img/posters/denovo-75-hero.webp" as="image" type="image/webp" fetchpriority="high">
+<link rel="stylesheet" href="assets/css/site.css">
+<script type="module" src="js/main.js"></script>
 </head>
 <body>
-  <a class="skip-link" href="#main">Skip to content</a>
-  <header class="site-header">
-    <div class="header-inner">
-      <a class="brand" href="#" aria-label="CrystalAR home"><svg viewBox="0 0 32 34" aria-hidden="true"><path d="M16 2 29 9.5v15L16 32 3 24.5v-15Z M3 9.5 16 17l13-7.5 M16 17v15 M16 2v15"/></svg><span>Crystal<span class="brand-ar">AR</span></span></a>
-      <nav aria-label="Main navigation"><a href="#method" aria-label="The method">The method</a><a href="#crystals" aria-label="The crystals">The crystals</a><a href="#results" aria-label="The results">The results</a></nav>
-      <a class="header-paper" data-paper-link href="about:blank" target="_blank" rel="noopener">Read the paper <span aria-hidden="true">↗</span></a>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="topbar" id="topbar">
+  <a class="brand" href="#top" aria-label="CrystalAR, back to top">
+    <svg class="glyph" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#glyph"></use></svg><span class="wm">CrystalAR</span>
+  </a>
+  <nav class="nav" aria-label="Sections">
+    <a href="#problem">Problem</a>
+    <a href="#method">Method</a>
+    <a href="#story">Story</a>
+    <a href="#crystals">Crystals</a>
+    <a href="#results">Results</a>
+    <a href="#paper">Paper</a>
+  </nav>
+  <div class="topbar-links">
+    <a class="pill" href="https://github.com/crssbl/CrystalAR" data-config-href="codeUrl" target="_blank" rel="noopener">Code<svg class="ext" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M4 2h6v6M10 2 3 9"/></svg><span class="sr-only"> (opens in a new tab)</span></a>
+    <a class="pill" href="https://arxiv.org/abs/2610.27762" data-config-requires="arxivUrl" data-config-href="arxivUrl" target="_blank" rel="noopener">arXiv<svg class="ext" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M4 2h6v6M10 2 3 9"/></svg><span class="sr-only"> (opens in a new tab)</span></a>
+  </div>
+  <span class="progress" aria-hidden="true"><span></span></span>
+</header>
+
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <!-- Orbit mark: a site (solid, accent) and its two images under a 3-fold rotation (outlines). -->
+  <symbol id="glyph" viewBox="0 0 24 24">
+    <circle cx="12" cy="6.45" r="3.55" style="fill: var(--mark-site, #00753F)"/>
+    <circle cx="5.59" cy="17.55" r="3" fill="none" stroke="currentColor" stroke-width="1.7"/>
+    <circle cx="18.41" cy="17.55" r="3" fill="none" stroke="currentColor" stroke-width="1.7"/>
+  </symbol>
+</svg>
+
+<main id="main">
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="top" aria-labelledby="hero-title">
+  <div class="hero-copy">
+    <h1 class="hero-title" id="hero-title">
+      <span class="wm wm--hero"><svg class="glyph" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#glyph"></use></svg>CrystalAR</span>
+      <span class="hero-sub">Autoregressive Modeling for Symmetric Crystal Generation</span>
+    </h1>
+    <p class="hero-dek">Given a space group, one model writes one sequence: a Wyckoff template, a lattice, then coordinates refined coarse to fine.</p>
+    <div class="authors">
+      <ul class="author-list" aria-label="Authors">
+        <li><a href="https://scholar.google.com/citations?user=NY3OA7sAAAAJ&amp;hl=en" target="_blank" rel="noopener">Ziqiao Meng</a><sup>1*</sup></li>
+        <li><a href="https://scholar.google.com/citations?user=-1sVvh4AAAAJ&amp;hl=en" target="_blank" rel="noopener">Rongsheng Chen</a><sup>2*</sup></li>
+        <li><a href="https://scholar.google.com/citations?user=nxJ4qM4AAAAJ&amp;hl=en" target="_blank" rel="noopener">Zhi Zheng</a><sup>1*</sup></li>
+        <li><a href="https://scholar.google.com/citations?user=vamy2okAAAAJ&amp;hl=en" target="_blank" rel="noopener">Nikita Kazeev</a><sup>1</sup></li>
+        <li><a href="https://scholar.google.com/citations?user=r9ezy2gAAAAJ&amp;hl=en" target="_blank" rel="noopener">Zhenkun Wang</a><sup>2†</sup></li>
+        <li><a href="https://scholar.google.com/citations?user=vfQf9SIAAAAJ&amp;hl=en" target="_blank" rel="noopener">Andrey Ustyuzhanin</a><sup>1</sup></li>
+        <li><a href="https://scholar.google.com/citations?user=8PCrLgwAAAAJ&amp;hl=en" target="_blank" rel="noopener">Wee Sun Lee</a><sup>1†</sup></li>
+      </ul>
+      <p class="affil"><span><sup>1</sup>National University of Singapore</span><span><sup>2</sup>Southern University of Science and Technology</span></p>
+      <p class="notes"><span><sup>*</sup>Equal contribution</span><span><sup>†</sup>Corresponding author</span></p>
     </div>
+    <div class="actions">
+      <a class="btn btn--primary" href="https://github.com/crssbl/CrystalAR" data-config-href="codeUrl" target="_blank" rel="noopener"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="m7 6-4 4 4 4M13 6l4 4-4 4M11.2 4.5 8.8 15.5"/></svg>Code<span class="sr-only"> (opens in a new tab)</span></a>
+      <a class="btn" href="https://arxiv.org/abs/2610.27762" data-config-requires="arxivUrl" data-config-href="arxivUrl" target="_blank" rel="noopener">arXiv<span class="sr-only"> (opens in a new tab)</span></a>
+      <a class="btn" href="#cite" data-config-requires="bibtex">BibTeX</a>
+      <span class="venue" data-config-requires="venue" data-config-text="venue" hidden></span>
+    </div>
+  </div>
+  <figure class="hero-figure">
+    <div class="hero-stage" data-hero-stage>
+      <img class="hero-poster" src="assets/img/posters/denovo-75-hero.webp" width="1200" height="1200" fetchpriority="high" decoding="async" alt="La5Bi3Cl, a crystal generated by CrystalAR in space group P6_3/mcm: lanthanum, bismuth and chlorine atoms inside a hexagonal unit cell.">
+    </div>
+    <figcaption class="hero-caption"><span class="formula">La<sub>5</sub>Bi<sub>3</sub>Cl</span><span class="sep" aria-hidden="true">·</span><span>P6<sub>3</sub>/mcm</span><span class="hero-phase" data-hero-phase aria-hidden="true">generated by CrystalAR</span><span class="sr-only">generated by CrystalAR</span></figcaption>
+  </figure>
+</section>
+<!-- ============ 01 PROBLEM (draft shell, Phase B) ============ -->
+<section class="section" id="problem" aria-labelledby="problem-title">
+  <header class="sec-head reveal">
+    <p class="kicker"><span class="num">01</span>The problem</p>
+    <h2 id="problem-title">Symmetry is discrete. Geometry is continuous.</h2>
+    <p class="dek">A space group and its Wyckoff positions are categorical choices, while the lattice and the atomic coordinates are real numbers that have to respect them.</p>
   </header>
-  <main id="main">
-    <section class="hero page-width" aria-labelledby="hero-heading">
-      <div class="hero-copy">
-        <p class="eyebrow"><span class="status-dot"></span> SYMMETRY-NATIVE CRYSTAL GENERATION</p>
-        <h1 id="hero-heading">Crystal<span>AR</span><span class="title-period">.</span></h1>
-        <p class="paper-title">Autoregressive Modeling for<br class="desktop-break"> Symmetric Crystal Generation</p>
-        <p class="hero-description">From a symmetry template to a complete crystal.<br class="desktop-break"> One model. One autoregressive sequence.</p>
-        <div id="authors" class="authors" aria-label="Authors"></div>
-        <div id="affiliations" class="affiliations"></div>
-        <p class="equal-note">* Equal contribution</p>
-        <div class="hero-actions"><a class="button primary" data-paper-link href="about:blank" target="_blank" rel="noopener"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 2h7l4 4v12H5Z M12 2v5h4 M8 10h5 M8 13h5"/></svg>Paper <span aria-hidden="true">↗</span></a><a class="button" id="code-link" href="https://github.com/crssbl/CrystalAR" target="_blank" rel="noopener"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 5-4 5 4 5 M14 5l4 5-4 5 M12 3l-4 14"/></svg>Code <span aria-hidden="true">↗</span></a><a class="text-link" href="#crystals">Explore the crystals <span aria-hidden="true">↓</span></a></div>
-      </div>
-      <figure class="hero-specimen">
-        <div class="specimen-top"><span class="mono">A GENERATED CRYSTAL</span><span class="specimen-index mono">01 / 10</span></div>
-        <div class="orbit orbit-one" aria-hidden="true"></div><div class="orbit orbit-two" aria-hidden="true"></div>
-        <div id="hero-viewer" class="hero-viewer" aria-label="Three-dimensional generated crystal"><p class="viewer-loading">Loading crystal…</p></div>
-        <div class="specimen-bottom"><figcaption><span id="hero-formula" class="specimen-formula">La<sub>5</sub>Bi<sub>3</sub>Cl</span><span id="hero-spacegroup" class="specimen-group">P6₃/mcm · SG 193</span></figcaption><a href="#crystals" class="specimen-open" aria-label="Explore this crystal"><span aria-hidden="true">↗</span></a></div>
-        <p class="specimen-footnote mono">REAL STRUCTURE · INTERACTIVE BELOW</p>
-      </figure>
-    </section>
-    <div class="sequence-band">
-      <div class="page-width sequence-inner"><p>A unified sequence.<br><strong>A crystallographic structure.</strong></p><ol aria-label="Generation sequence"><li><span>01</span>Wyckoff template</li><li aria-hidden="true" class="sequence-arrow">→</li><li><span>02</span>Lattice</li><li aria-hidden="true" class="sequence-arrow">→</li><li><span>03</span>Free coordinates</li><li aria-hidden="true" class="sequence-arrow">→</li><li><span>04</span>Full crystal</li></ol></div>
-    </div>
-    <section id="method" class="section page-width" aria-labelledby="method-heading">
-      <div class="section-heading"><div><p class="eyebrow">01 / THE METHOD</p><h2 id="method-heading">Symmetry sets the stage.<br>Autoregression fills it in.</h2></div><p class="section-intro">CrystalAR generates a symmetry-constrained template, a lattice, and coordinates in sequence. Continuous geometry becomes a search through increasingly precise regions.</p></div>
-      <div id="method-demo"></div>
-      <div class="method-takeaways"><div><span class="small-number">01</span><h3>A structured template</h3><p>Elements and Wyckoff positions describe the symmetry-inequivalent sites before geometry is generated.</p></div><div><span class="small-number">02</span><h3>Precision, level by level</h3><p>Free Wyckoff parameters are refined from coarse to fine. Sites interact within each resolution level.</p></div><div><span class="small-number">03</span><h3>Symmetry by construction</h3><p>Symmetry operations expand representative sites into the complete crystal, preserving their constraints.</p></div></div>
-    </section>
-    <section id="crystals" class="section crystal-section" aria-labelledby="crystals-heading">
-      <div class="page-width">
-        <div class="section-heading"><div><p class="eyebrow">02 / THE CRYSTALS</p><h2 id="crystals-heading">Generated.<br>Ready to explore.</h2></div><p class="section-intro">Ten real outputs from CrystalAR, spanning different compositions and space groups. Rotate a crystal, inspect its symmetry, or download its structure.</p></div>
-        <div class="explorer">
-          <div class="explorer-stage" data-theme="dark">
-            <div class="explorer-stage-top"><span class="mono"><i class="live-specimen-dot" aria-hidden="true"></i> GENERATED 3D CRYSTAL</span><span id="case-id" class="mono"></span></div>
-            <div id="crystal-viewer" class="crystal-viewer"><p class="viewer-loading">Loading structure…</p></div>
-            <div class="explorer-stage-bottom"><span class="interaction-hint">Drag to rotate · Scroll or pinch to zoom</span><div class="stage-actions"><button class="icon-text-button" id="export-crystal" type="button"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 6h3l1-2h4l1 2h3v10H4Z"/><circle cx="10" cy="11" r="3"/></svg> Save PNG</button><button class="icon-text-button" id="reset-camera" type="button"><span aria-hidden="true">↺</span> Reset view</button></div></div>
-          </div>
-          <aside class="crystal-details" aria-labelledby="sample-formula">
-            <div class="structure-identity"><p class="eyebrow">SELECTED STRUCTURE</p><h3 id="sample-formula">—</h3><p id="sample-sg" class="sample-sg"></p></div>
-            <dl class="sample-facts"><div><dt>Space group</dt><dd id="sample-sg-number">—</dd></div><div><dt>Atoms in source cell</dt><dd id="sample-atoms">—</dd></div></dl>
-            <div class="template-block"><p class="mono">WYCKOFF SITES</p><p id="sample-template">—</p><span class="template-hint">Element × multiplicity (site symmetry)</span></div>
-            <div id="element-legend" class="element-legend" aria-label="Elements"></div>
-            <fieldset class="representation-controls"><legend class="control-label">Representation</legend><div class="representation-grid">
-              <button type="button" data-representation="spheres" aria-pressed="false"><svg viewBox="0 0 28 24" aria-hidden="true"><circle cx="10" cy="13" r="6"/><circle cx="20" cy="8" r="4"/></svg><span>Spheres</span></button>
-              <button type="button" data-representation="ball-and-stick" aria-pressed="true"><svg viewBox="0 0 28 24" aria-hidden="true"><path d="m9 15 12-7"/><circle cx="8" cy="16" r="4"/><circle cx="21" cy="8" r="4"/></svg><span>Ball &amp; stick</span></button>
-              <button type="button" data-representation="sticks" aria-pressed="false"><svg viewBox="0 0 28 24" aria-hidden="true"><path d="m5 18 9-12 10 10M14 6l-1 14"/></svg><span>Sticks</span></button>
-              <button type="button" data-representation="space-filling" aria-pressed="false"><svg viewBox="0 0 28 24" aria-hidden="true"><circle cx="11" cy="13" r="8"/><circle cx="20" cy="10" r="7"/></svg><span>Space filling</span></button>
-            </div><p id="contact-note" class="contact-note">Sticks show geometric near-neighbor contacts.</p></fieldset>
-            <div class="studio-control"><span class="control-label" id="studio-label">Studio</span><div class="studio-switch" role="group" aria-labelledby="studio-label"><button type="button" data-viewer-theme="light" aria-pressed="false"><i class="studio-swatch light" aria-hidden="true"></i>Light</button><button type="button" data-viewer-theme="dark" aria-pressed="true"><i class="studio-swatch dark" aria-hidden="true"></i>Dark</button></div></div>
-            <div class="viewer-options"><label><input type="checkbox" id="show-cell" checked><span>Unit cell</span></label><label><input type="checkbox" id="show-periodic" checked><span>Periodic copies</span></label><label><input type="checkbox" id="auto-rotate"><span>Auto rotate</span></label></div>
-            <details class="display-settings"><summary>Display settings <span aria-hidden="true">+</span></summary><div class="display-settings-body"><label class="range-control" for="atom-scale"><span>Atom size</span><output id="atom-scale-value" for="atom-scale">1.00×</output><input id="atom-scale" type="range" min="0.65" max="1.45" step="0.05" value="1"></label><label class="range-control" for="bond-scale"><span>Stick width</span><output id="bond-scale-value" for="bond-scale">1.00×</output><input id="bond-scale" type="range" min="0.6" max="1.8" step="0.1" value="1"></label><label class="projection-control" for="viewer-projection"><span>Projection</span><select id="viewer-projection"><option value="perspective">Perspective</option><option value="orthographic">Orthographic</option></select></label></div></details>
-            <a id="download-cif" class="button primary download-button" download>Download CIF <span aria-hidden="true">↓</span></a><button id="copy-crystal" class="copy-crystal" type="button">Copy link to this crystal <span aria-hidden="true">↗</span></button><p id="crystal-status" class="sr-only" aria-live="polite"></p>
-          </aside>
+  <p class="draft-note reveal"><span>Draft</span>Illustration of point, line, plane and volume sites follows in the next phase.</p>
+</section>
+
+<!-- ============ 02 OVERVIEW (draft shell, Phase B) ============ -->
+<section class="section section--tight" id="overview" aria-labelledby="overview-title">
+  <header class="sec-head reveal">
+    <p class="kicker"><span class="num">02</span>Overview</p>
+    <h2 id="overview-title">One decoder, one sequence.</h2>
+    <p class="dek">A single decoder-only Transformer writes the template and the lattice token by token, then refines the coordinates of every site level by level.</p>
+  </header>
+  <p class="draft-note reveal"><span>Draft</span>The architecture figure from the paper follows in the next phase.</p>
+</section>
+
+<!-- ============ 03 METHOD (draft shell, Phase B) ============ -->
+<section class="section section--tight" id="method" aria-labelledby="method-title">
+  <header class="sec-head reveal">
+    <p class="kicker"><span class="num">03</span>The method</p>
+    <h2 id="method-title">Template first. Lattice next. Coordinates, coarse to fine.</h2>
+    <p class="dek">Each Wyckoff position confines a site to a point, a line, a plane or the whole cell, and nine dyadic refinements locate it there.</p>
+  </header>
+  <p class="draft-note reveal"><span>Draft</span>Three short illustrated steps follow in the next phase; the story below already shows them on a real crystal.</p>
+</section>
+<!-- ============ STORY: one crystal written in 3D (dark stage) ============ -->
+<section class="story" id="story" aria-labelledby="story-title" data-story>
+  <header class="story-head">
+    <p class="kicker kicker--stage">One crystal, written in 3D</p>
+    <h2 id="story-title">Watch CrystalAR write La<sub>5</sub>Bi<sub>3</sub>Cl.</h2>
+    <p class="dek">A real sample from the final model, replayed from its stored generation record.</p>
+  </header>
+  <div class="story-track" data-story-track>
+    <div class="story-pin" data-story-pin>
+      <div class="story-stage" data-story-stage>
+        <img class="story-still" data-story-still src="assets/img/story/step-6.webp" width="1200" height="900" loading="lazy" decoding="async" alt="The finished La5Bi3Cl unit cell: 18 atoms of lanthanum, bismuth and chlorine in a hexagonal cell.">
+        <div class="story-overlay">
+          <p class="story-caption" data-story-caption aria-hidden="true" hidden></p>
+          <p class="story-readout" data-story-readout aria-hidden="true"></p>
         </div>
-        <div id="sample-list" class="sample-list" role="group" aria-label="Choose a generated crystal"></div>
-        <details class="source-note"><summary>About these structures <span aria-hidden="true">+</span></summary><p>These are saved generated structures, not an online model run. Periodic copies make the crystal boundaries easier to read; they are not additional atoms in the source cell. Any connecting segments show geometric near neighbors, not a confirmed chemical-bond assignment. The two-dimensional method illustration above is separate from these three-dimensional examples.</p></details>
       </div>
-    </section>
-    <section id="results" class="section page-width" aria-labelledby="results-heading">
-      <div class="section-heading"><div><p class="eyebrow">03 / THE RESULTS</p><h2 id="results-heading">Explore new templates.<br>Keep the structure.</h2></div><p class="section-intro">Evaluate the model from three complementary perspectives: symmetry-aware exploration, material quality, and recovery of known structures.</p></div>
-      <div class="result-tabs" role="tablist" aria-label="Experimental results"><button id="tab-symmetry" role="tab" aria-selected="true" aria-controls="panel-symmetry" tabindex="0" data-panel="symmetry">Symmetry &amp; novelty</button><button id="tab-quality" role="tab" aria-selected="false" aria-controls="panel-quality" tabindex="-1" data-panel="quality">Material quality</button><button id="tab-csp" role="tab" aria-selected="false" aria-controls="panel-csp" tabindex="-1" data-panel="csp">Structure prediction</button></div>
-      <div id="panel-symmetry" class="result-panel" role="tabpanel" aria-labelledby="tab-symmetry"><div class="result-chart"><div class="chart-heading"><h3>Template exploration × material discovery</h3><span class="mono">MP-20 · 2,500 SAMPLES / METHOD</span></div><div id="symmetry-chart"></div></div><div class="result-story"><span class="mono">SYMMETRY-AWARE EVALUATION</span><h3>A balance between<br>exploration and stability.</h3><div class="headline-stat">0.28<span>%</span></div><p class="stat-label">Symmetric, stable, unique &amp; novel</p><p>The default model discovers <strong>161 novel unique templates</strong>. The flexible-size variant explores 268, with a lower S.S.U.N. rate of 0.19%.</p><p class="fine-print">S.S.U.N. adds a non-P1 requirement to S.U.N.; it does not by itself mean the Wyckoff template is novel. Template novelty ignores element identity.</p></div><details class="exact-results"><summary>View exact numbers and definitions</summary><div id="symmetry-table"></div><p>Table 2, manuscript p. 7. Template counts and S.S.U.N. measure different properties; neither is a universal score.</p></details></div>
-      <div id="panel-quality" class="result-panel" role="tabpanel" aria-labelledby="tab-quality" hidden><div class="result-chart"><div class="chart-heading"><h3>Stability and S.U.N.</h3><span class="mono">LeMat-GenBench</span></div><fieldset class="segmented-control"><legend class="sr-only">Pre-relaxation setting</legend><label><input type="radio" name="relaxation" value="without" checked><span>Without pre-relaxation</span></label><label><input type="radio" name="relaxation" value="with"><span>With pre-relaxation</span></label></fieldset><div id="quality-chart"></div></div><div class="result-story"><span class="mono">MATERIAL QUALITY</span><h3>Explicit symmetry.<br>Competitive stability.</h3><div id="quality-stat" class="headline-stat">6.0<span>%</span></div><p id="quality-stat-label" class="stat-label">Stable · without pre-relaxation</p><p>CrystalAR improves from 6.0% to 13.7% stable structures with pre-relaxation. The corresponding S.U.N. rates are 0.3% and 0.9%.</p><p class="fine-print">The two settings are separate evaluations. The chart shows selected baselines from Table 1, not every model in the benchmark.</p></div><details class="exact-results"><summary>View exact numbers and evaluation notes</summary><div id="quality-table"></div><p>Table 1, manuscript p. 7. † CrystalFormer uses 1,000 publicly available samples; other methods use the standard evaluation set. PLaID++ includes post-training. S.U.N. means stable, unique and novel.</p></details></div>
-      <div id="panel-csp" class="result-panel" role="tabpanel" aria-labelledby="tab-csp" hidden><div class="result-chart"><div class="chart-heading"><h3>Recovering known crystal structures</h3><span class="mono">MATCH RATE (%) ↑</span></div><fieldset class="segmented-control"><legend class="sr-only">CSP dataset</legend><label><input type="radio" name="csp-dataset" value="mpts52" checked><span>MPTS-52</span></label><label><input type="radio" name="csp-dataset" value="mp20"><span>MP-20</span></label></fieldset><div id="csp-chart"></div></div><div class="result-story"><span class="mono">CRYSTAL STRUCTURE PREDICTION</span><h3>Composition + space group.<br>No retrieved template.</h3><div id="csp-stat" class="headline-stat">25.25<span>%</span></div><p id="csp-stat-label" class="stat-label">MPTS-52 match rate · one candidate</p><p>Given chemical composition and a space group, CrystalAR predicts the Wyckoff template and geometry. Multiple candidates explore alternative symmetry-compatible structures.</p><p class="fine-print">“Template-free” means no retrieved Wyckoff template is supplied. Composition and space group are still inputs.</p></div><details class="exact-results"><summary>View match rates and RMSE</summary><div id="csp-table"></div><p>Table 3, manuscript p. 9. “—” means not reported. The chart shows selected baselines; results with one and 20 candidates are separate settings.</p></details></div>
-    </section>
-    <section id="citation" class="citation-section"><div class="page-width citation-inner"><div><p class="eyebrow">READ, BUILD, CITE</p><h2>Continue the exploration.</h2><p>The paper describes the representation, architecture,<br class="desktop-break"> evaluation protocols, and limitations in detail.</p><div class="citation-actions"><a data-paper-link href="about:blank" class="text-link" target="_blank" rel="noopener">Read the paper ↗</a><a href="https://github.com/crssbl/CrystalAR" class="text-link" target="_blank" rel="noopener">View code ↗</a></div></div><div class="citation-code"><div class="citation-code-heading"><span class="mono">BIBTEX</span><button id="copy-citation" type="button">Copy citation <span aria-hidden="true">⧉</span></button></div><pre id="bibtex" tabindex="0"></pre><span id="citation-status" class="copy-status" aria-live="polite"></span></div></div></section>
-  </main>
-  <footer class="site-footer page-width"><a class="footer-brand" href="#">Crystal<span>AR</span>.</a><p>Autoregressive Modeling for Symmetric Crystal Generation</p><a href="#main">Back to top ↑</a></footer>
-  <noscript><p class="noscript-message">The paper and code links work without JavaScript. Enable JavaScript to explore the interactive method, generated crystals, and result charts.</p></noscript>
+      <div class="story-side">
+        <ol class="story-steps" data-story-steps>
+          <li class="story-step" data-step="0"><h3><span class="n">1</span>Given a space group</h3><p>Space group P6<sub>3</sub>/mcm (No. 193) is given, and its 24 symmetry operations constrain everything that follows.</p></li>
+          <li class="story-step" data-step="1"><h3><span class="n">2</span>Wyckoff template</h3><p>For each site the model writes an element, then a Wyckoff position: Cl 2b and La 4d are fixed points, La 6g and Bi 6g lie on lines.</p></li>
+          <li class="story-step" data-step="2"><h3><span class="n">3</span>Lattice</h3><p>A hexagonal cell leaves two variables free, so the model writes V = 562.7 Å<sup>3</sup> and c/a = 0.690.</p></li>
+          <li class="story-step" data-step="3"><h3><span class="n">4</span>Coarse to fine</h3><p>Nine levels each halve the region of every free coordinate, from half the line down to 1/512 of it, about 0.02 Å.</p></li>
+          <li class="story-step" data-step="4"><h3><span class="n">5</span>Symmetry expansion</h3><p>The symmetry operations copy each site across its orbit: 2 + 4 + 6 + 6 = 18 atoms.</p></li>
+          <li class="story-step" data-step="5"><h3><span class="n">6</span>The crystal</h3><p>The finished cell of La<sub>5</sub>Bi<sub>3</sub>Cl, ready to rotate.</p></li>
+        </ol>
+        <div class="tokens" data-tokens>
+          <h3 class="tokens-title">The sequence</h3>
+<!-- tokens:begin -->
+<ol class="token-groups">
+<li class="tg"><span class="tg-label">Space group</span><span class="tg-body"><span class="tok tok--given" data-tok="g"><span>P6<sub>3</sub>/mcm</span><small>#193 · given</small></span></span></li>
+<li class="tg"><span class="tg-label">Template</span><span class="tg-body"><span class="tok tok--pair" data-tok="t0"><span><i class="el-dot el-Cl"></i>Cl</span><span>2b</span></span><span class="tok tok--pair" data-tok="t1"><span><i class="el-dot el-La"></i>La</span><span>4d</span></span><span class="tok tok--pair" data-tok="t2"><span><i class="el-dot el-La"></i>La</span><span>6g</span></span><span class="tok tok--pair" data-tok="t3"><span><i class="el-dot el-Bi"></i>Bi</span><span>6g</span></span></span></li>
+<li class="tg"><span class="tg-label">Lattice</span><span class="tg-body"><span class="tok" data-tok="l0">V <small>562.7 Å³</small></span><span class="tok" data-tok="l1">c/a <small>0.690</small></span></span></li>
+<li class="tg"><span class="tg-label">Coordinates</span><span class="tg-body"><span class="bits" aria-hidden="true"><span class="bits-name"></span><span class="bits-level">1</span><span class="bits-level">2</span><span class="bits-level">3</span><span class="bits-level">4</span><span class="bits-level">5</span><span class="bits-level">6</span><span class="bits-level">7</span><span class="bits-level">8</span><span class="bits-level">9</span><span class="bits-value"></span><span class="bits-name">Cl 2b</span><span class="bits-fixed">fixed point</span><span class="bits-name">La 4d</span><span class="bits-fixed">fixed point</span><span class="bits-name">La 6g · x</span><span class="bit" data-tok="r1">0</span><span class="bit" data-tok="r2">1</span><span class="bit" data-tok="r3">0</span><span class="bit" data-tok="r4">0</span><span class="bit" data-tok="r5">0</span><span class="bit" data-tok="r6">1</span><span class="bit" data-tok="r7">0</span><span class="bit" data-tok="r8">1</span><span class="bit" data-tok="r9">0</span><span class="bits-value">0.2705</span><span class="bits-name">Bi 6g · x</span><span class="bit" data-tok="r1">1</span><span class="bit" data-tok="r2">0</span><span class="bit" data-tok="r3">0</span><span class="bit" data-tok="r4">1</span><span class="bit" data-tok="r5">1</span><span class="bit" data-tok="r6">1</span><span class="bit" data-tok="r7">0</span><span class="bit" data-tok="r8">1</span><span class="bit" data-tok="r9">0</span><span class="bits-value">0.6143</span></span></span></li>
+</ol>
+<p class="tokens-result">Symmetry expansion: 18 atoms in the cell</p>
+<p class="sr-only">Space group P6₃/mcm, given. Template: Cl 2b, La 4d, La 6g, Bi 6g. Lattice: V 562.7 Å³, c/a 0.690. Coordinates over nine levels: La 6g x: level decisions 0 1 0 0 0 1 0 1 0, final value 0.2705; Bi 6g x: level decisions 1 0 0 1 1 1 0 1 0, final value 0.6143.</p>
+<!-- tokens:end -->
+        </div>
+      </div>
+      <div class="story-controls" data-story-controls hidden>
+        <button class="step-btn" type="button" data-story-prev aria-label="Previous step"><svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M12.5 4.5 7 10l5.5 5.5"/></svg></button>
+        <label class="scrubber-wrap"><span class="sr-only">Generation progress</span><input class="scrubber" type="range" min="0" max="1000" step="1" value="0" data-story-scrubber></label>
+        <button class="step-btn" type="button" data-story-next aria-label="Next step"><svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg></button>
+      </div>
+    </div>
+  </div>
+  <p class="sr-only" aria-live="polite" data-story-live></p>
+  <p class="story-source">Sample denovo:75 from 2,500 de novo samples of the final model. Coordinates are the centers of the level-9 regions; beam statistics come from the stored search record.</p>
+</section>
+<!-- ============ 04 CRYSTALS: the 13 S.S.U.N. candidates ============ -->
+<section class="section section--gallery" id="crystals" aria-labelledby="crystals-title">
+  <header class="sec-head reveal">
+    <p class="kicker"><span class="num">04</span>Crystals</p>
+    <h2 id="crystals-title">Thirteen crystals, each replayable.</h2>
+    <p class="dek">Every S.S.U.N. candidate among 2,500 samples of the final model; open one to rotate it, replay how it was written, or download its CIF.</p>
+  </header>
+  <ul class="gallery" data-gallery>
+<!-- gallery:begin -->
+<li class="card" data-id="denovo:75" data-slug="denovo-75">
+  <figure class="card-figure"><img src="assets/img/posters/denovo-75.webp" alt="" width="640" height="640" loading="lazy" decoding="async"></figure>
+  <div class="card-body">
+    <div class="card-head">
+      <h3 class="card-title"><button class="card-open" type="button" aria-haspopup="dialog" data-open="denovo-75"><span class="formula">La<sub>5</sub>Bi<sub>3</sub>Cl</span><span class="sr-only">, open 3D view</span></button></h3>
+      <span class="card-id">denovo:75</span>
+    </div>
+    <p class="card-sg">P6<sub>3</sub>/mcm <span>#193</span></p>
+    <dl class="hull" aria-label="Signed distance to the MLIP reference hull, meV/atom"><div class="is-ssun"><dt>Orb</dt><dd>−54.5</dd></div><div class="is-ssun"><dt>MACE</dt><dd>−28.8</dd></div><div class="is-ssun"><dt>UMA</dt><dd>−47.7</dd></div></dl>
+    <div class="card-foot">
+      <span class="ssun"><span class="ssun-dots" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i></span>S.S.U.N. by 3 of 3 MLIPs</span>
+      <a class="card-cif" href="assets/cif/denovo-75.cif" download>CIF<span class="sr-only"> of La5Bi3Cl</span></a>
+    </div>
+  </div>
+</li>
+<li class="card" data-id="denovo:1798" data-slug="denovo-1798">
+  <figure class="card-figure"><img src="assets/img/posters/denovo-1798.webp" alt="" width="640" height="640" loading="lazy" decoding="async"></figure>
+  <div class="card-body">
+    <div class="card-head">
+      <h3 class="card-title"><button class="card-open" type="button" aria-haspopup="dialog" data-open="denovo-1798"><span class="formula">EuP</span><span class="sr-only">, open 3D view</span></button></h3>
+      <span class="card-id">denovo:1798</span>
+    </div>
+    <p class="card-sg">P<span class="bar">6</span>2m <span>#189</span></p>
+    <dl class="hull" aria-label="Signed distance to the MLIP reference hull, meV/atom"><div class="is-ssun"><dt>Orb</dt><dd>−19.6</dd></div><div class="is-ssun"><dt>MACE</dt><dd>−94.1</dd></div><div class="is-ssun"><dt>UMA</dt><dd>−57.0</dd></div></dl>
+    <div class="card-foot">
+      <span class="ssun"><span class="ssun-dots" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i></span>S.S.U.N. by 3 of 3 MLIPs</span>
+      <a class="card-cif" href="assets/cif/denovo-1798.cif" download>CIF<span class="sr-only"> of EuP</span></a>
+    </div>
+  </div>
+</li>
+<li class="card" data-id="denovo:2219" data-slug="denovo-2219">
+  <figure class="card-figure"><img src="assets/img/posters/denovo-2219.webp" alt="" width="640" height="640" loading="lazy" decoding="async"></figure>
+  <div class="card-body">
+    <div class="card-head">
+      <h3 class="card-title"><button class="card-open" type="button" aria-haspopup="dialog" data-open="denovo-2219"><span class="formula">La<sub>5</sub>Bi<sub>3</sub>S</span><span class="sr-only">, open 3D view</span></button></h3>
+      <span class="card-id">denovo:2219</span>
+    </div>
+    <p class="card-sg">P6<sub>3</sub>/mcm <span>#193</span></p>
+    <dl class="hull" aria-label="Signed distance to the MLIP reference hull, meV/atom"><div class="is-ssun"><dt>Orb</dt><dd>−15.6</dd></div><div class="is-ssun"><dt>MACE</dt><dd>−10.5</dd></div><div class="is-ssun"><dt>UMA</dt><dd>−4.7</dd></div></dl>
+    <div class="card-foot">
+      <span class="ssun"><span class="ssun-dots" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i></span>S.S.U.N. by 3 of 3 MLIPs</span>
+      <a class="card-cif" href="assets/cif/denovo-2219.cif" download>CIF<span class="sr-only"> of La5Bi3S</span></a>
+    </div>
+  </div>
+</li>
+<li class="card" data-id="denovo:1431" data-slug="denovo-1431">
+  <figure class="card-figure"><img src="assets/img/posters/denovo-1431.webp" alt="" width="640" height="640" loading="lazy" decoding="async"></figure>
+  <div class="card-body">
+    <div class="card-head">
+      <h3 class="card-title"><button class="card-open" type="button" aria-haspopup="dialog" data-open="denovo-1431"><span class="formula">YGa<sub>2</sub>Co<sub>3</sub></span><span class="sr-only">, open 3D view</span></button></h3>
+      <span class="card-id">denovo:1431</span>
+    </div>
+    <p class="card-sg">P<span class="bar">6</span>2m <span>#189</span></p>
+    <dl class="hull" aria-label="Signed distance to the MLIP reference hull, meV/atom"><div class="is-ssun"><dt>Orb</dt><dd>−2.3</dd></div><div><dt>MACE</dt><dd>+4.3</dd></div><div class="is-ssun"><dt>UMA</dt><dd>−2.0</dd></div></dl>
+    <div class="card-foot">
+      <span class="ssun"><span class="ssun-dots" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i></span>S.S.U.N. by 2 of 3 MLIPs</span>
+      <a class="card-cif" href="assets/cif/denovo-1431.cif" download>CIF<span class="sr-only"> of YGa2Co3</span></a>
+    </div>
+  </div>
+</li>
+<li class="card" data-id="denovo:2006" data-slug="denovo-2006">
+  <figure class="card-figure"><img src="assets/img/posters/denovo-2006.webp" alt="" width="640" height="640" loading="lazy" decoding="async"></figure>
+  <div class="card-body">
+    <div class="card-head">
+      <h3 class="card-title"><button class="card-open" type="button" aria-haspopup="dialog" data-open="denovo-2006"><span class="formula">Eu<sub>2</sub>Cu<sub>9</sub>Ni</span><span class="sr-only">, open 3D view</span></button></h3>
+      <span class="card-id">denovo:2006</span>
+    </div>
+    <p class="card-sg">Pmmm <span>#47</span></p>
+    <dl class="hull" aria-label="Signed distance to the MLIP reference hull, meV/atom"><div class="is-ssun"><dt>Orb</dt><dd>−1.0</dd></div><div><dt>MACE</dt><dd>+9.5</dd></div><div class="is-ssun"><dt>UMA</dt><dd>−5.8</dd></div></dl>
+    <div class="card-foot">
+      <span class="ssun"><span class="ssun-dots" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i></span>S.S.U.N. by 2 of 3 MLIPs</span>
+      <a class="card-cif" href="assets/cif/denovo-2006.cif" download>CIF<span class="sr-only"> of Eu2Cu9Ni</span></a>
+    </div>
+  </div>
+</li>
+<li class="card" data-id="denovo:570" data-slug="denovo-570">
+  <figure class="card-figure"><img src="assets/img/posters/denovo-570.webp" alt="" width="640" height="640" loading="lazy" decoding="async"></figure>
+  <div class="card-body">
+    <div class="card-head">
+      <h3 class="card-title"><button class="card-open" type="button" aria-haspopup="dialog" data-open="denovo-570"><span class="formula">YHoN<sub>2</sub></span><span class="sr-only">, open 3D view</span></button></h3>
+      <span class="card-id">denovo:570</span>
+    </div>
+    <p class="card-sg">P4/mmm <span>#123</span></p>
+    <dl class="hull" aria-label="Signed distance to the MLIP reference hull, meV/atom"><div><dt>Orb</dt><dd>+5.1</dd></div><div class="is-ssun"><dt>MACE</dt><dd>−30.3</dd></div><div><dt>UMA</dt><dd>+8.6</dd></div></dl>
+    <div class="card-foot">
+      <span class="ssun"><span class="ssun-dots" aria-hidden="true"><i class="on"></i><i class=""></i><i class=""></i></span>S.S.U.N. by 1 of 3 MLIPs</span>
+      <a class="card-cif" href="assets/cif/denovo-570.cif" download>CIF<span class="sr-only"> of YHoN2</span></a>
+    </div>
+  </div>
+</li>
+<li class="card" data-id="denovo:143" data-slug="denovo-143">
+  <figure class="card-figure"><img src="assets/img/posters/denovo-143.webp" alt="" width="640" height="640" loading="lazy" decoding="async"></figure>
+  <div class="card-body">
+    <div class="card-head">
+      <h3 class="card-title"><button class="card-open" type="button" aria-haspopup="dialog" data-open="denovo-143"><span class="formula">Y<sub>3</sub>Sc<sub>2</sub>Si<sub>3</sub></span><span class="sr-only">, open 3D view</span></button></h3>
+      <span class="card-id">denovo:143</span>
+    </div>
+    <p class="card-sg">Amm2 <span>#38</span></p>
+    <dl class="hull" aria-label="Signed distance to the MLIP reference hull, meV/atom"><div><dt>Orb</dt><dd>+0.9</dd></div><div class="is-ssun"><dt>MACE</dt><dd>−20.5</dd></div><div><dt>UMA</dt><dd>+9.2</dd></div></dl>
+    <div class="card-foot">
+      <span class="ssun"><span class="ssun-dots" aria-hidden="true"><i class="on"></i><i class=""></i><i class=""></i></span>S.S.U.N. by 1 of 3 MLIPs</span>
+      <a class="card-cif" href="assets/cif/denovo-143.cif" download>CIF<span class="sr-only"> of Y3Sc2Si3</span></a>
+    </div>
+  </div>
+</li>
+<li class="card" data-id="denovo:53" data-slug="denovo-53">
+  <figure class="card-figure"><img src="assets/img/posters/denovo-53.webp" alt="" width="640" height="640" loading="lazy" decoding="async"></figure>
+  <div class="card-body">
+    <div class="card-head">
+      <h3 class="card-title"><button class="card-open" type="button" aria-haspopup="dialog" data-open="denovo-53"><span class="formula">Mn<sub>3</sub>NiP<sub>4</sub></span><span class="sr-only">, open 3D view</span></button></h3>
+      <span class="card-id">denovo:53</span>
+    </div>
+    <p class="card-sg">Pm <span>#6</span></p>
+    <dl class="hull" aria-label="Signed distance to the MLIP reference hull, meV/atom"><div><dt>Orb</dt><dd>+1.9</dd></div><div class="is-ssun"><dt>MACE</dt><dd>−12.7</dd></div><div><dt>UMA</dt><dd>+2.5</dd></div></dl>
+    <div class="card-foot">
+      <span class="ssun"><span class="ssun-dots" aria-hidden="true"><i class="on"></i><i class=""></i><i class=""></i></span>S.S.U.N. by 1 of 3 MLIPs</span>
+      <a class="card-cif" href="assets/cif/denovo-53.cif" download>CIF<span class="sr-only"> of Mn3NiP4</span></a>
+    </div>
+  </div>
+</li>
+<li class="card" data-id="denovo:2435" data-slug="denovo-2435">
+  <figure class="card-figure"><img src="assets/img/posters/denovo-2435.webp" alt="" width="640" height="640" loading="lazy" decoding="async"></figure>
+  <div class="card-body">
+    <div class="card-head">
+      <h3 class="card-title"><button class="card-open" type="button" aria-haspopup="dialog" data-open="denovo-2435"><span class="formula">CaSmTi<sub>2</sub>O<sub>6</sub></span><span class="sr-only">, open 3D view</span></button></h3>
+      <span class="card-id">denovo:2435</span>
+    </div>
+    <p class="card-sg">Pmn2<sub>1</sub> <span>#31</span></p>
+    <dl class="hull" aria-label="Signed distance to the MLIP reference hull, meV/atom"><div><dt>Orb</dt><dd>+4.3</dd></div><div class="is-ssun"><dt>MACE</dt><dd>−12.1</dd></div><div><dt>UMA</dt><dd>+2.4</dd></div></dl>
+    <div class="card-foot">
+      <span class="ssun"><span class="ssun-dots" aria-hidden="true"><i class="on"></i><i class=""></i><i class=""></i></span>S.S.U.N. by 1 of 3 MLIPs</span>
+      <a class="card-cif" href="assets/cif/denovo-2435.cif" download>CIF<span class="sr-only"> of CaSmTi2O6</span></a>
+    </div>
+  </div>
+</li>
+<li class="card" data-id="denovo:766" data-slug="denovo-766">
+  <figure class="card-figure"><img src="assets/img/posters/denovo-766.webp" alt="" width="640" height="640" loading="lazy" decoding="async"></figure>
+  <div class="card-body">
+    <div class="card-head">
+      <h3 class="card-title"><button class="card-open" type="button" aria-haspopup="dialog" data-open="denovo-766"><span class="formula">AlV<sub>6</sub>Si</span><span class="sr-only">, open 3D view</span></button></h3>
+      <span class="card-id">denovo:766</span>
+    </div>
+    <p class="card-sg">Pm<span class="bar">3</span> <span>#200</span></p>
+    <dl class="hull" aria-label="Signed distance to the MLIP reference hull, meV/atom"><div><dt>Orb</dt><dd>+17.4</dd></div><div class="is-ssun"><dt>MACE</dt><dd>−28.5</dd></div><div><dt>UMA</dt><dd>+12.1</dd></div></dl>
+    <div class="card-foot">
+      <span class="ssun"><span class="ssun-dots" aria-hidden="true"><i class="on"></i><i class=""></i><i class=""></i></span>S.S.U.N. by 1 of 3 MLIPs</span>
+      <a class="card-cif" href="assets/cif/denovo-766.cif" download>CIF<span class="sr-only"> of AlV6Si</span></a>
+    </div>
+  </div>
+</li>
+<li class="card" data-id="denovo:2002" data-slug="denovo-2002">
+  <figure class="card-figure"><img src="assets/img/posters/denovo-2002.webp" alt="" width="640" height="640" loading="lazy" decoding="async"></figure>
+  <div class="card-body">
+    <div class="card-head">
+      <h3 class="card-title"><button class="card-open" type="button" aria-haspopup="dialog" data-open="denovo-2002"><span class="formula">Sc<sub>7</sub>FeBr<sub>12</sub></span><span class="sr-only">, open 3D view</span></button></h3>
+      <span class="card-id">denovo:2002</span>
+    </div>
+    <p class="card-sg">R<span class="bar">3</span> <span>#148</span></p>
+    <dl class="hull" aria-label="Signed distance to the MLIP reference hull, meV/atom"><div><dt>Orb</dt><dd>+12.2</dd></div><div class="is-ssun"><dt>MACE</dt><dd>−0.7</dd></div><div><dt>UMA</dt><dd>+7.3</dd></div></dl>
+    <div class="card-foot">
+      <span class="ssun"><span class="ssun-dots" aria-hidden="true"><i class="on"></i><i class=""></i><i class=""></i></span>S.S.U.N. by 1 of 3 MLIPs</span>
+      <a class="card-cif" href="assets/cif/denovo-2002.cif" download>CIF<span class="sr-only"> of Sc7FeBr12</span></a>
+    </div>
+  </div>
+</li>
+<li class="card" data-id="denovo:1559" data-slug="denovo-1559">
+  <figure class="card-figure"><img src="assets/img/posters/denovo-1559.webp" alt="" width="640" height="640" loading="lazy" decoding="async"></figure>
+  <div class="card-body">
+    <div class="card-head">
+      <h3 class="card-title"><button class="card-open" type="button" aria-haspopup="dialog" data-open="denovo-1559"><span class="formula">PrCuSi<sub>2</sub></span><span class="sr-only">, open 3D view</span></button></h3>
+      <span class="card-id">denovo:1559</span>
+    </div>
+    <p class="card-sg">Cmcm <span>#63</span></p>
+    <dl class="hull" aria-label="Signed distance to the MLIP reference hull, meV/atom"><div><dt>Orb</dt><dd>+22.2</dd></div><div class="is-ssun"><dt>MACE</dt><dd>−11.6</dd></div><div><dt>UMA</dt><dd>+18.7</dd></div></dl>
+    <div class="card-foot">
+      <span class="ssun"><span class="ssun-dots" aria-hidden="true"><i class="on"></i><i class=""></i><i class=""></i></span>S.S.U.N. by 1 of 3 MLIPs</span>
+      <a class="card-cif" href="assets/cif/denovo-1559.cif" download>CIF<span class="sr-only"> of PrCuSi2</span></a>
+    </div>
+  </div>
+</li>
+<li class="card" data-id="denovo:1190" data-slug="denovo-1190">
+  <figure class="card-figure"><img src="assets/img/posters/denovo-1190.webp" alt="" width="640" height="640" loading="lazy" decoding="async"></figure>
+  <div class="card-body">
+    <div class="card-head">
+      <h3 class="card-title"><button class="card-open" type="button" aria-haspopup="dialog" data-open="denovo-1190"><span class="formula">LiVRhO<sub>4</sub></span><span class="sr-only">, open 3D view</span></button></h3>
+      <span class="card-id">denovo:1190</span>
+    </div>
+    <p class="card-sg">Imma <span>#74</span></p>
+    <dl class="hull" aria-label="Signed distance to the MLIP reference hull, meV/atom"><div><dt>Orb</dt><dd>+24.8</dd></div><div class="is-ssun"><dt>MACE</dt><dd>−8.3</dd></div><div><dt>UMA</dt><dd>+28.9</dd></div></dl>
+    <div class="card-foot">
+      <span class="ssun"><span class="ssun-dots" aria-hidden="true"><i class="on"></i><i class=""></i><i class=""></i></span>S.S.U.N. by 1 of 3 MLIPs</span>
+      <a class="card-cif" href="assets/cif/denovo-1190.cif" download>CIF<span class="sr-only"> of LiVRhO4</span></a>
+    </div>
+  </div>
+</li>
+<!-- gallery:end -->
+  </ul>
+  <p class="fine gallery-note">S.S.U.N. means symmetric, stable, unique and novel. These 13 structures were judged S.S.U.N. by at least one of three MLIPs (Orb, MACE, UMA), and 3 of them by all three. Energies are signed distances to a fixed MLIP reference hull, in meV/atom. There is no DFT or experimental validation.</p>
+</section>
+
+<!-- ============ RESULTS (draft shell, Phase B) ============ -->
+<section class="section section--tight" id="results" aria-labelledby="results-title">
+  <header class="sec-head reveal">
+    <p class="kicker">Benchmarks</p>
+    <h2 id="results-title">The numbers, from the paper.</h2>
+    <p class="dek">De novo generation, symmetry statistics and crystal structure prediction, each checked against the final paper.</p>
+  </header>
+  <p class="draft-note reveal"><span>Draft</span>Number cards and the full paper tables follow in the next phase.</p>
+</section>
+
+<!-- ============ 05 PAPER (draft shell, Phase B) ============ -->
+<section class="section section--tight" id="paper" aria-labelledby="paper-title">
+  <header class="sec-head reveal">
+    <p class="kicker"><span class="num">05</span>The paper</p>
+    <h2 id="paper-title">CrystalAR: Autoregressive Modeling for Symmetric Crystal Generation</h2>
+    <p class="dek">Read the paper on arXiv, explore the code, or copy the citation below.</p>
+  </header>
+  <ul class="paper-links reveal">
+    <li><a href="https://github.com/crssbl/CrystalAR" data-config-href="codeUrl" target="_blank" rel="noopener"><span class="l-name">Code</span><span class="l-meta">crssbl/CrystalAR</span><span class="sr-only"> (opens in a new tab)</span></a></li>
+    <li data-config-requires="arxivUrl"><a href="https://arxiv.org/abs/2610.27762" data-config-href="arxivUrl" target="_blank" rel="noopener"><span class="l-name">Paper</span><span class="l-meta">arXiv</span><span class="sr-only"> (opens in a new tab)</span></a></li>
+  </ul>
+  <div class="cite" id="cite" data-config-requires="bibtex">
+    <pre class="bibtex"><code data-config-text="bibtex">@misc{meng2026crystalar,
+  title         = {CrystalAR: Autoregressive Modeling for Symmetric Crystal Generation},
+  author        = {Ziqiao Meng and Rongsheng Chen and Zhi Zheng and Nikita Kazeev and Zhenkun Wang and Andrey Ustyuzhanin and Wee Sun Lee},
+  year          = {2026},
+  eprint        = {2610.27762},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2610.27762}
+}</code></pre>
+    <button class="btn" type="button" data-copy-bibtex hidden>Copy BibTeX</button>
+    <p class="fine" role="status" data-copy-status></p>
+  </div>
+  <p class="draft-note reveal"><span>Draft</span>Abstract follows in the next phase.</p>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="footer-bar">
+    <span class="wm wm--foot"><svg class="glyph" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#glyph"></use></svg>CrystalAR</span>
+    <span class="footer-meta">Project page · National University of Singapore · Southern University of Science and Technology</span>
+    <a href="#top">Back to top</a>
+  </div>
+</footer>
+
+<dialog class="xdialog" id="crystal-dialog" aria-labelledby="xdialog-title" data-dialog>
+  <div class="xdialog-inner">
+    <div class="xdialog-stage" data-dialog-stage>
+      <img class="xdialog-poster" data-dialog-poster src="assets/img/posters/denovo-75.webp" alt="" width="600" height="600" loading="lazy" decoding="async">
+      <p class="xdialog-phase" data-dialog-phase></p>
+    </div>
+    <div class="xdialog-side">
+      <header class="xdialog-head">
+        <p class="kicker" data-dialog-id></p>
+        <h2 id="xdialog-title" data-dialog-title></h2>
+        <p class="xdialog-sg" data-dialog-sg></p>
+      </header>
+      <dl class="hull hull--dialog" data-dialog-hull></dl>
+      <p class="xdialog-ssun" data-dialog-ssun></p>
+      <p class="xdialog-template" data-dialog-template></p>
+      <p class="fine" data-dialog-relaxation hidden></p>
+      <div class="xdialog-actions">
+        <button class="btn btn--primary" type="button" data-dialog-replay>Replay generation</button>
+        <a class="btn" href="assets/cif/denovo-75.cif" data-dialog-cif download>Download CIF</a>
+      </div>
+      <p class="fine" data-dialog-note>Drag the crystal to rotate it, or use the arrow keys when it has focus.</p>
+    </div>
+    <button class="xdialog-close" type="button" data-dialog-close aria-label="Close"><svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M5 5l10 10M15 5 5 15"/></svg></button>
+  </div>
+</dialog>
+
 </body>
 </html>

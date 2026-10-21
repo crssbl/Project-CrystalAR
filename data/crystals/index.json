@@ -1,0 +1,422 @@
+{
+ "schema": "crystalar-gallery/1",
+ "note": "S.S.U.N. union over three MLIPs (Orb, MACE, UMA); signed distances to a fixed MLIP reference hull in meV/atom; no DFT or experimental validation.",
+ "crystals": [
+  {
+   "id": "denovo:75",
+   "slug": "denovo-75",
+   "formula": "La5Bi3Cl",
+   "nAtoms": 18,
+   "spaceGroup": {
+    "number": 193,
+    "symbol": "P6_3/mcm"
+   },
+   "hull": {
+    "orb": -54.53390545315351,
+    "mace": -28.79185146755603,
+    "uma": -47.71388676510924
+   },
+   "ssunModels": [
+    "orb",
+    "mace",
+    "uma"
+   ],
+   "ssunCount": 3,
+   "template": [
+    "Cl 2b",
+    "La 4d",
+    "La 6g",
+    "Bi 6g"
+   ],
+   "trace": "data/crystals/denovo-75.json",
+   "cif": "assets/cif/denovo-75.cif",
+   "poster": "assets/img/posters/denovo-75.webp",
+   "replay": true,
+   "relaxationNote": null
+  },
+  {
+   "id": "denovo:2219",
+   "slug": "denovo-2219",
+   "formula": "La5Bi3S",
+   "nAtoms": 18,
+   "spaceGroup": {
+    "number": 193,
+    "symbol": "P6_3/mcm"
+   },
+   "hull": {
+    "orb": -15.573130713569583,
+    "mace": -10.4999542236337,
+    "uma": -4.657243934634181
+   },
+   "ssunModels": [
+    "orb",
+    "mace",
+    "uma"
+   ],
+   "ssunCount": 3,
+   "template": [
+    "S 2b",
+    "La 4d",
+    "La 6g",
+    "Bi 6g"
+   ],
+   "trace": "data/crystals/denovo-2219.json",
+   "cif": "assets/cif/denovo-2219.cif",
+   "poster": "assets/img/posters/denovo-2219.webp",
+   "replay": true,
+   "relaxationNote": null
+  },
+  {
+   "id": "denovo:1798",
+   "slug": "denovo-1798",
+   "formula": "EuP",
+   "nAtoms": 12,
+   "spaceGroup": {
+    "number": 189,
+    "symbol": "P-62m"
+   },
+   "hull": {
+    "orb": -19.564310709634825,
+    "mace": -94.0704345703125,
+    "uma": -57.021733579025735
+   },
+   "ssunModels": [
+    "orb",
+    "mace",
+    "uma"
+   ],
+   "ssunCount": 3,
+   "template": [
+    "P 2e",
+    "Eu 3f",
+    "Eu 3g",
+    "P 4h"
+   ],
+   "trace": "data/crystals/denovo-1798.json",
+   "cif": "assets/cif/denovo-1798.cif",
+   "poster": "assets/img/posters/denovo-1798.webp",
+   "replay": true,
+   "relaxationNote": null
+  },
+  {
+   "id": "denovo:1431",
+   "slug": "denovo-1431",
+   "formula": "YGa2Co3",
+   "nAtoms": 18,
+   "spaceGroup": {
+    "number": 189,
+    "symbol": "P-62m"
+   },
+   "hull": {
+    "orb": -2.2616916232633955,
+    "mace": 4.302130805122317,
+    "uma": -2.016718346494528
+   },
+   "ssunModels": [
+    "orb",
+    "uma"
+   ],
+   "ssunCount": 2,
+   "template": [
+    "Y 1a",
+    "Y 2d",
+    "Ga 3f",
+    "Co 3g",
+    "Ga 3g",
+    "Co 6j"
+   ],
+   "trace": "data/crystals/denovo-1431.json",
+   "cif": "assets/cif/denovo-1431.cif",
+   "poster": "assets/img/posters/denovo-1431.webp",
+   "replay": true,
+   "relaxationNote": null
+  },
+  {
+   "id": "denovo:2006",
+   "slug": "denovo-2006",
+   "formula": "Eu2Cu9Ni",
+   "nAtoms": 12,
+   "spaceGroup": {
+    "number": 47,
+    "symbol": "Pmmm"
+   },
+   "hull": {
+    "orb": -1.0368347167979408,
+    "mace": 9.525299072264737,
+    "uma": -5.812959625836278
+   },
+   "ssunModels": [
+    "orb",
+    "uma"
+   ],
+   "ssunCount": 2,
+   "template": [
+    "Cu 1b",
+    "Eu 1c",
+    "Eu 1e",
+    "Ni 1h",
+    "Cu 2q",
+    "Cu 2r",
+    "Cu 4v"
+   ],
+   "trace": "data/crystals/denovo-2006.json",
+   "cif": "assets/cif/denovo-2006.cif",
+   "poster": "assets/img/posters/denovo-2006.webp",
+   "replay": true,
+   "relaxationNote": null
+  },
+  {
+   "id": "denovo:53",
+   "slug": "denovo-53",
+   "formula": "Mn3NiP4",
+   "nAtoms": 8,
+   "spaceGroup": {
+    "number": 6,
+    "symbol": "Pm"
+   },
+   "hull": {
+    "orb": 1.8754005432128906,
+    "mace": -12.67385482788086,
+    "uma": 2.46929327172829
+   },
+   "ssunModels": [
+    "mace"
+   ],
+   "ssunCount": 1,
+   "template": [
+    "P 1a",
+    "P 1a",
+    "Mn 1a",
+    "Mn 1a",
+    "P 1b",
+    "P 1b",
+    "Mn 1b",
+    "Ni 1b"
+   ],
+   "trace": "data/crystals/denovo-53.json",
+   "cif": "assets/cif/denovo-53.cif",
+   "poster": "assets/img/posters/denovo-53.webp",
+   "replay": true,
+   "relaxationNote": null
+  },
+  {
+   "id": "denovo:570",
+   "slug": "denovo-570",
+   "formula": "YHoN2",
+   "nAtoms": 4,
+   "spaceGroup": {
+    "number": 123,
+    "symbol": "P4/mmm"
+   },
+   "hull": {
+    "orb": 5.086421966552734,
+    "mace": -30.259132385253906,
+    "uma": 8.586851871864809
+   },
+   "ssunModels": [
+    "mace"
+   ],
+   "ssunCount": 1,
+   "template": [
+    "Y 1a",
+    "N 1b",
+    "N 1c",
+    "Ho 1d"
+   ],
+   "trace": "data/crystals/denovo-570.json",
+   "cif": "assets/cif/denovo-570.cif",
+   "poster": "assets/img/posters/denovo-570.webp",
+   "replay": true,
+   "relaxationNote": null
+  },
+  {
+   "id": "denovo:766",
+   "slug": "denovo-766",
+   "formula": "AlV6Si",
+   "nAtoms": 8,
+   "spaceGroup": {
+    "number": 200,
+    "symbol": "Pm-3"
+   },
+   "hull": {
+    "orb": 17.443974812826113,
+    "mace": -28.525471687316895,
+    "uma": 12.06313519196378
+   },
+   "ssunModels": [
+    "mace"
+   ],
+   "ssunCount": 1,
+   "template": [
+    "Si 1a",
+    "Al 1b",
+    "V 6f"
+   ],
+   "trace": "data/crystals/denovo-766.json",
+   "cif": "assets/cif/denovo-766.cif",
+   "poster": "assets/img/posters/denovo-766.webp",
+   "replay": true,
+   "relaxationNote": null
+  },
+  {
+   "id": "denovo:1559",
+   "slug": "denovo-1559",
+   "formula": "PrCuSi2",
+   "nAtoms": 16,
+   "spaceGroup": {
+    "number": 63,
+    "symbol": "Cmcm"
+   },
+   "hull": {
+    "orb": 22.213538487751094,
+    "mace": -11.564254760743076,
+    "uma": 18.717233920732212
+   },
+   "ssunModels": [
+    "mace"
+   ],
+   "ssunCount": 1,
+   "template": [
+    "Si 4c",
+    "Si 4c",
+    "Cu 4c",
+    "Pr 4c"
+   ],
+   "trace": "data/crystals/denovo-1559.json",
+   "cif": "assets/cif/denovo-1559.cif",
+   "poster": "assets/img/posters/denovo-1559.webp",
+   "replay": true,
+   "relaxationNote": null
+  },
+  {
+   "id": "denovo:2435",
+   "slug": "denovo-2435",
+   "formula": "CaSmTi2O6",
+   "nAtoms": 20,
+   "spaceGroup": {
+    "number": 31,
+    "symbol": "Pmn2_1"
+   },
+   "hull": {
+    "orb": 4.316457112631511,
+    "mace": -12.072277069092863,
+    "uma": 2.4299698864655994
+   },
+   "ssunModels": [
+    "mace"
+   ],
+   "ssunCount": 1,
+   "template": [
+    "O 2a",
+    "O 2a",
+    "Ca 2a",
+    "Sm 2a",
+    "O 4b",
+    "O 4b",
+    "Ti 4b"
+   ],
+   "trace": "data/crystals/denovo-2435.json",
+   "cif": "assets/cif/denovo-2435.cif",
+   "poster": "assets/img/posters/denovo-2435.webp",
+   "replay": true,
+   "relaxationNote": null
+  },
+  {
+   "id": "denovo:143",
+   "slug": "denovo-143",
+   "formula": "Y3Sc2Si3",
+   "nAtoms": 32,
+   "spaceGroup": {
+    "number": 38,
+    "symbol": "Amm2"
+   },
+   "hull": {
+    "orb": 0.9019851684559654,
+    "mace": -20.461273193367546,
+    "uma": 9.174227232591647
+   },
+   "ssunModels": [
+    "mace"
+   ],
+   "ssunCount": 1,
+   "template": [
+    "Si 2a",
+    "Y 2a",
+    "Si 2b",
+    "Y 2b",
+    "Si 4d",
+    "Y 4d",
+    "Si 4e",
+    "Y 4e",
+    "Sc 8f"
+   ],
+   "trace": "data/crystals/denovo-143.json",
+   "cif": "assets/cif/denovo-143.cif",
+   "poster": "assets/img/posters/denovo-143.webp",
+   "replay": true,
+   "relaxationNote": "With each of the three MLIPs, relaxation raises the symmetry of this structure from Amm2 (No. 38) to P6₃/mcm (No. 193)."
+  },
+  {
+   "id": "denovo:1190",
+   "slug": "denovo-1190",
+   "formula": "LiVRhO4",
+   "nAtoms": 28,
+   "spaceGroup": {
+    "number": 74,
+    "symbol": "Imma"
+   },
+   "hull": {
+    "orb": 24.842920757473408,
+    "mace": -8.343810126897111,
+    "uma": 28.944419380265707
+   },
+   "ssunModels": [
+    "mace"
+   ],
+   "ssunCount": 1,
+   "template": [
+    "V 4c",
+    "Rh 4b",
+    "Li 4e",
+    "O 8i",
+    "O 8h"
+   ],
+   "trace": "data/crystals/denovo-1190.json",
+   "cif": "assets/cif/denovo-1190.cif",
+   "poster": "assets/img/posters/denovo-1190.webp",
+   "replay": true,
+   "relaxationNote": null
+  },
+  {
+   "id": "denovo:2002",
+   "slug": "denovo-2002",
+   "formula": "Sc7FeBr12",
+   "nAtoms": 60,
+   "spaceGroup": {
+    "number": 148,
+    "symbol": "R-3"
+   },
+   "hull": {
+    "orb": 12.153180440266809,
+    "mace": -0.6845633188889977,
+    "uma": 7.294933689721006
+   },
+   "ssunModels": [
+    "mace"
+   ],
+   "ssunCount": 1,
+   "template": [
+    "Fe 3a",
+    "Sc 3b",
+    "Sc 18f",
+    "Br 18f",
+    "Br 18f"
+   ],
+   "trace": "data/crystals/denovo-2002.json",
+   "cif": "assets/cif/denovo-2002.cif",
+   "poster": "assets/img/posters/denovo-2002.webp",
+   "replay": true,
+   "relaxationNote": null
+  }
+ ]
+}

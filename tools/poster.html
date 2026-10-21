@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>CrystalAR poster export</title>
+<link rel="stylesheet" href="../assets/css/site.css">
+<link rel="stylesheet" href="poster.css">
+<script type="module" src="poster.js"></script>
+</head>
+<body class="poster-page">
+<main class="poster-main">
+  <h1 class="poster-h1">Poster export</h1>
+  <p class="poster-help">Renders posters, story stills and the OG draft with the site's own renderer. Used by <code>tools/render-assets.mjs</code>; it also works by hand: pick an item and press Download.</p>
+  <form class="poster-form" data-form>
+    <label>Item <select data-item></select></label>
+    <button class="btn" type="button" data-render>Render</button>
+    <a class="btn btn--primary" data-download>Download</a>
+  </form>
+  <div class="poster-frame" data-frame></div>
+</main>
+</body>
+</html>

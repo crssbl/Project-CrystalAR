@@ -1,0 +1,9 @@
+{
+  "_comment": "Copy to tools/local_config.json (git-ignored) and fill in local paths. Never commit the copy.",
+  "artifacts_root": "<local source root>",
+  "attempts": "<local source root>/generation/attempts.jsonl",
+  "raw_structures": "<local source root>/evaluation/raw/structures.jsonl",
+  "assessment_dir": "<local source root>/assessment",
+  "generator_root": "<local generator source tree containing crystalformer/>",
+  "provenance_manifest": "<unpublished notes directory outside this repository>/provenance-manifest.json"
+}
