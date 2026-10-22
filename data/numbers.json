@@ -1,0 +1,1030 @@
+{
+  "schema": "crystalar-paper-numbers/1",
+  "paper": "arXiv:2610.27762v1",
+  "tables": [
+    {
+      "number": 1,
+      "page": 7,
+      "title": "De novo generation",
+      "caption": "Table 1: De novo crystal generation on LeMat-GenBench under with and without pre-relaxation settings. We evaluate generation quality by validity, uniqueness, and novelty; energetic quality by formation energy Ef, hull energy Ehull, and relaxation RMSD; and material discovery quality by stability, S.U.N., metastability, and M.S.U.N. Symmetry-native models are highlighted in red. CrystalFormer† is evaluated using the 1,000 publicly available generated samples, whereas the other methods use the standard evaluation set. PLaID++ differs from the remaining baselines in that it further applies post-training to improve generation quality. Bold denotes the best result among symmetry-native models, while underline denotes the best result among models without explicit template generation within each setting.",
+      "columns": [
+        "Model",
+        "Method",
+        "# Params",
+        "Valid (%) ↑",
+        "Unique (%) ↑",
+        "Novel (%) ↑",
+        "Ef (eV) ↓",
+        "Ehull (eV) ↓",
+        "RMSD (Å) ↓",
+        "Stable (%) ↑",
+        "SUN (%) ↑",
+        "Meta (%) ↑",
+        "MSUN (%) ↑"
+      ],
+      "rows": [
+        {
+          "label": "MatterGen",
+          "group": "With pre-relaxation",
+          "values": [
+            "Diffusion",
+            "47M",
+            "95.7",
+            "95.1",
+            "70.5",
+            "−0.70 ± 0.79",
+            "0.18 ± 0.18",
+            "0.39 ± 0.50",
+            "2.0",
+            "0.2 (6)",
+            "33.4",
+            "15.0"
+          ]
+        },
+        {
+          "label": "PLaID++",
+          "group": "With pre-relaxation",
+          "values": [
+            "LLM+RL",
+            "7B",
+            "96.0",
+            "77.8",
+            "24.2",
+            "−0.50 ± 0.44",
+            "0.09 ± 0.16",
+            "0.13 ± 0.29",
+            "12.4",
+            "1.0 (26)",
+            "60.7",
+            "7.6"
+          ]
+        },
+        {
+          "label": "WyFormer",
+          "group": "With pre-relaxation",
+          "values": [
+            "AR+Diff",
+            "8B",
+            "93.4",
+            "93.0",
+            "66.4",
+            "−0.43 ± 0.95",
+            "0.50 ± 0.51",
+            "0.81 ± 0.98",
+            "0.5",
+            "0.1 (3)",
+            "15.7",
+            "1.9"
+          ]
+        },
+        {
+          "label": "WyFormer-DFT",
+          "group": "With pre-relaxation",
+          "values": [
+            "AR+Diff",
+            "8B",
+            "95.2",
+            "95.0",
+            "66.4",
+            "−0.67 ± 0.91",
+            "0.27 ± 0.36",
+            "0.42 ± 0.60",
+            "3.7",
+            "0.4 (9)",
+            "24.8",
+            "7.8"
+          ]
+        },
+        {
+          "label": "CrystalAR (Ours)",
+          "group": "With pre-relaxation",
+          "values": [
+            "AR",
+            "33M",
+            "91.4",
+            "89.0",
+            "39.3",
+            "−0.78 ± 0.87",
+            "0.15 ± 0.26",
+            "0.23 ± 0.46",
+            "13.7",
+            "0.9 (22)",
+            "42.6",
+            "7.3"
+          ]
+        },
+        {
+          "label": "Crystal-GFN",
+          "group": "Without pre-relaxation",
+          "values": [
+            "GFlowNet",
+            "1M",
+            "51.7",
+            "51.7",
+            "51.7",
+            "−1.30 ± 2.63",
+            "2.09 ± 2.38",
+            "1.87 ± 0.97",
+            "0.0",
+            "0.0 (0)",
+            "0.0",
+            "0.0"
+          ]
+        },
+        {
+          "label": "ADiT",
+          "group": "Without pre-relaxation",
+          "values": [
+            "Diffusion",
+            "180M",
+            "90.6",
+            "87.8",
+            "26.0",
+            "−0.73 ± 0.93",
+            "0.33 ± 0.45",
+            "0.38 ± 0.40",
+            "0.4",
+            "0.0 (0)",
+            "36.5",
+            "1.0"
+          ]
+        },
+        {
+          "label": "DiffCSP",
+          "group": "Without pre-relaxation",
+          "values": [
+            "Diffusion",
+            "12M",
+            "95.7",
+            "94.8",
+            "66.2",
+            "−0.64 ± 0.96",
+            "0.28 ± 0.56",
+            "0.59 ± 0.63",
+            "2.3",
+            "0.1 (3)",
+            "29.8",
+            "8.5"
+          ]
+        },
+        {
+          "label": "DiffCSP++",
+          "group": "Without pre-relaxation",
+          "values": [
+            "Diffusion",
+            "12M",
+            "95.3",
+            "95.1",
+            "62.0",
+            "−0.52 ± 0.87",
+            "0.41 ± 0.44",
+            "0.69 ± 0.82",
+            "1.0",
+            "0.2 (4)",
+            "26.4",
+            "5.0"
+          ]
+        },
+        {
+          "label": "LLaMat2-CIF",
+          "group": "Without pre-relaxation",
+          "values": [
+            "LLM",
+            "7B",
+            "84.4",
+            "81.4",
+            "30.0",
+            "−0.47 ± 1.01",
+            "0.44 ± 0.71",
+            "0.54 ± 0.71",
+            "0.7",
+            "0.1 (3)",
+            "34.7",
+            "2.1"
+          ]
+        },
+        {
+          "label": "LLaMat3-CIF",
+          "group": "Without pre-relaxation",
+          "values": [
+            "LLM",
+            "8B",
+            "15.4",
+            "15.2",
+            "10.5",
+            "−0.74 ± 2.69",
+            "1.71 ± 2.48",
+            "1.01 ± 1.10",
+            "0.1",
+            "0.0 (0)",
+            "2.1",
+            "0.2"
+          ]
+        },
+        {
+          "label": "CrystalFormer†",
+          "group": "Without pre-relaxation",
+          "values": [
+            "AR",
+            "5M",
+            "69.9",
+            "69.4",
+            "31.8",
+            "−0.17 ± 1.48",
+            "0.70 ± 1.33",
+            "0.66 ± 1.05",
+            "1.4",
+            "0.0 (0)",
+            "28.8",
+            "3.1"
+          ]
+        },
+        {
+          "label": "SymmCD",
+          "group": "Without pre-relaxation",
+          "values": [
+            "Diffusion",
+            "12M",
+            "73.4",
+            "73.0",
+            "47.0",
+            "−0.02 ± 1.22",
+            "0.88 ± 1.07",
+            "0.87 ± 1.09",
+            "1.4",
+            "0.1 (2)",
+            "18.6",
+            "2.4"
+          ]
+        },
+        {
+          "label": "CrystalAR (Ours)",
+          "group": "Without pre-relaxation",
+          "values": [
+            "AR",
+            "33M",
+            "91.4",
+            "89.1",
+            "42.8",
+            "−0.23 ± 1.27",
+            "0.71 ± 1.08",
+            "0.77 ± 1.25",
+            "6.0",
+            "0.3 (7)",
+            "39.2",
+            "2.7"
+          ]
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "page": 7,
+      "title": "Symmetry evaluation",
+      "caption": "Table 2: Symmetry evaluation on MP-20 using 2,500 generated structures per method. We group methods into models with and without explicit Wyckoff-template generation, with symmetry-native models highlighted in red. We evaluate template exploration by the number of novel unique templates, distribution fidelity by P1 ratio, SG χ2, WNel, and JSDWyckoff, and material discovery quality by S.U.N. and S.S.U.N. Symmetry statistics are computed over novel templates. Bold and underline denote the best and second-best results, respectively. CrystalAR (SV) denotes the flexible-size variant that explicitly predicts both the number of atoms and the number of symmetry-inequivalent sites.",
+      "columns": [
+        "Model",
+        "Method",
+        "Novel unique templates (#) ↑",
+        "P1 (%) · ref = 2.23",
+        "SG χ² ↓",
+        "W_Nel ↓",
+        "JSD_Wyckoff ↓",
+        "S.U.N. (%) ↑",
+        "S.S.U.N. (%) ↑"
+      ],
+      "rows": [
+        {
+          "label": "DiffCSP",
+          "group": "Models without Explicit Template Generation",
+          "values": [
+            "Diffusion",
+            "48",
+            "70.66",
+            "23.8303",
+            "0.3762",
+            "0.5185",
+            "0.12",
+            "0.05"
+          ]
+        },
+        {
+          "label": "DiffCSP++",
+          "group": "Models without Explicit Template Generation",
+          "values": [
+            "Diffusion",
+            "5",
+            "2.19",
+            "0.1049",
+            "0.4787",
+            "0.0343",
+            "0.19",
+            "0.19"
+          ]
+        },
+        {
+          "label": "WyFormerDiffCSP++",
+          "group": "Symmetry-native Models",
+          "values": [
+            "AR + Diffusion",
+            "190",
+            "1.56",
+            "0.2238",
+            "0.1087",
+            "0.0248",
+            "0.13",
+            "0.13"
+          ]
+        },
+        {
+          "label": "SGEquiDiff",
+          "group": "Symmetry-native Models",
+          "values": [
+            "AR + Diffusion",
+            "386",
+            "2.02",
+            "0.2112",
+            "0.1641",
+            "0.0218",
+            "0.11",
+            "0.11"
+          ]
+        },
+        {
+          "label": "SymmCD",
+          "group": "Symmetry-native Models",
+          "values": [
+            "Diffusion",
+            "215",
+            "2.38",
+            "0.1276",
+            "0.5116",
+            "0.0290",
+            "0.09",
+            "0.09"
+          ]
+        },
+        {
+          "label": "CrystalFormer",
+          "group": "Symmetry-native Models",
+          "values": [
+            "Autoregressive",
+            "89",
+            "1.26",
+            "0.3138",
+            "0.1697",
+            "0.0399",
+            "0.00",
+            "0.00"
+          ]
+        },
+        {
+          "label": "CrystalAR (SV)",
+          "group": "Symmetry-native Models",
+          "values": [
+            "Autoregressive",
+            "268",
+            "1.94",
+            "0.2584",
+            "0.0973",
+            "0.0323",
+            "0.19",
+            "0.19"
+          ]
+        },
+        {
+          "label": "CrystalAR (Ours)",
+          "group": "Symmetry-native Models",
+          "values": [
+            "Autoregressive",
+            "161",
+            "2.42",
+            "0.3469",
+            "0.0611",
+            "0.0414",
+            "0.28",
+            "0.28"
+          ]
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "page": 9,
+      "title": "Crystal structure prediction",
+      "caption": "Table 3: Crystal structure prediction on MP-20 and MPTS-52 under single-hypothesis (1) and multi-hypothesis (20) generation. We evaluate structure recovery by match rate (MR, ↑) and geometric accuracy by RMSE (↓). CrystalAR performs template-free CSP without supplying a retrieved Wyckoff template. Bold denotes the best result in each column, while underline denotes the best single-hypothesis result.",
+      "columns": [
+        "Model",
+        "MP-20 MR (%) ↑",
+        "MP-20 RMSE ↓",
+        "MPTS-52 MR (%) ↑",
+        "MPTS-52 RMSE ↓"
+      ],
+      "rows": [
+        {
+          "label": "CDVAE (1)",
+          "group": "Single hypothesis",
+          "values": [
+            "33.90",
+            "0.1045",
+            "5.34",
+            "0.2106"
+          ]
+        },
+        {
+          "label": "DiffCSP (1)",
+          "group": "Single hypothesis",
+          "values": [
+            "51.49",
+            "0.0631",
+            "12.19",
+            "0.1786"
+          ]
+        },
+        {
+          "label": "FlowMM (1)",
+          "group": "Single hypothesis",
+          "values": [
+            "61.39",
+            "0.0566",
+            "17.54",
+            "0.1726"
+          ]
+        },
+        {
+          "label": "CrystalFlow (1)",
+          "group": "Single hypothesis",
+          "values": [
+            "62.02",
+            "0.0710",
+            "21.00",
+            "0.1613"
+          ]
+        },
+        {
+          "label": "OMatG (1)",
+          "group": "Single hypothesis",
+          "values": [
+            "63.75",
+            "0.0720",
+            "25.15",
+            "0.1931"
+          ]
+        },
+        {
+          "label": "CrystalAR (1)",
+          "group": "Single hypothesis",
+          "values": [
+            "62.92",
+            "0.0585",
+            "25.25",
+            "0.1305"
+          ]
+        },
+        {
+          "label": "CrystalFormer (1)",
+          "group": "Single hypothesis",
+          "values": [
+            "29.62",
+            "0.0619",
+            "−",
+            "−"
+          ]
+        },
+        {
+          "label": "WyFormer (1)",
+          "group": "Single hypothesis",
+          "values": [
+            "10.25",
+            "0.0522 (NA)",
+            "−",
+            "−"
+          ]
+        },
+        {
+          "label": "DiffCSP (20)",
+          "group": "20 hypotheses",
+          "values": [
+            "77.93",
+            "0.0492",
+            "34.02",
+            "0.1749"
+          ]
+        },
+        {
+          "label": "CrystalFlow (20)",
+          "group": "20 hypotheses",
+          "values": [
+            "78.34",
+            "0.0577",
+            "37.81",
+            "0.1584"
+          ]
+        },
+        {
+          "label": "CrystalAR (20)",
+          "group": "20 hypotheses",
+          "values": [
+            "74.55",
+            "0.0655",
+            "35.71",
+            "0.1454"
+          ]
+        },
+        {
+          "label": "CrystalFormer (20)",
+          "group": "20 hypotheses",
+          "values": [
+            "64.56",
+            "0.0835",
+            "−",
+            "−"
+          ]
+        },
+        {
+          "label": "WyFormer (20)",
+          "group": "20 hypotheses",
+          "values": [
+            "40.90",
+            "0.0472 (NA)",
+            "−",
+            "−"
+          ]
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "page": 23,
+      "title": "Count prior and search",
+      "caption": "Table 6: Count prior and search ablation for de novo generation. All entries are percentages over 2,500 attempts; S.U.N. counts are shown in parentheses.",
+      "columns": [
+        "Count policy",
+        "Search",
+        "Valid (%)",
+        "Unique (%)",
+        "Novel (%)",
+        "Stable (%)",
+        "S.U.N. (%)"
+      ],
+      "rows": [
+        {
+          "label": "Empirical prior (CrystalAR)",
+          "group": "",
+          "values": [
+            "Sampling",
+            "64.40",
+            "62.24",
+            "18.76",
+            "5.44",
+            "0.20 (5)"
+          ]
+        },
+        {
+          "label": "Empirical prior (CrystalAR)",
+          "group": "",
+          "values": [
+            "SGBS",
+            "91.44",
+            "89.08",
+            "42.76",
+            "6.00",
+            "0.28 (7)"
+          ]
+        },
+        {
+          "label": "Learned STOP",
+          "group": "",
+          "values": [
+            "Sampling",
+            "59.96",
+            "58.72",
+            "21.72",
+            "3.48",
+            "0.16 (4)"
+          ]
+        },
+        {
+          "label": "Learned STOP",
+          "group": "",
+          "values": [
+            "SGBS",
+            "90.12",
+            "88.64",
+            "48.92",
+            "3.52",
+            "0.16 (4)"
+          ]
+        },
+        {
+          "label": "Composition prefix",
+          "group": "",
+          "values": [
+            "SGBS",
+            "91.44",
+            "89.52",
+            "41.32",
+            "5.40",
+            "0.20 (5)"
+          ]
+        }
+      ]
+    },
+    {
+      "number": 7,
+      "page": 23,
+      "title": "Representation and modules",
+      "caption": "Table 7: Representative representation and module ablations. Rates are percentages over 2,500 attempts; S.U.N. counts are shown in parentheses.",
+      "columns": [
+        "Configuration",
+        "Valid (%)",
+        "Unique (%)",
+        "Novel (%)",
+        "Stable (%)",
+        "S.U.N. (%)"
+      ],
+      "rows": [
+        {
+          "label": "Learned STOP reference",
+          "group": "",
+          "values": [
+            "90.12",
+            "88.64",
+            "48.92",
+            "3.52",
+            "0.16 (4)"
+          ]
+        },
+        {
+          "label": "Full-cell AR",
+          "group": "",
+          "values": [
+            "49.12",
+            "48.88",
+            "35.04",
+            "0.72",
+            "0.00 (0)"
+          ]
+        },
+        {
+          "label": "Wyckoff-letter coordinates",
+          "group": "",
+          "values": [
+            "89.80",
+            "88.08",
+            "51.36",
+            "4.16",
+            "0.08 (2)"
+          ]
+        },
+        {
+          "label": "Flat 512-bin coordinates",
+          "group": "",
+          "values": [
+            "68.16",
+            "66.48",
+            "29.12",
+            "4.24",
+            "0.00 (0)"
+          ]
+        },
+        {
+          "label": "Continuous coordinates",
+          "group": "",
+          "values": [
+            "41.64",
+            "40.84",
+            "17.12",
+            "1.72",
+            "0.08 (2)"
+          ]
+        },
+        {
+          "label": "No periodic encoding",
+          "group": "",
+          "values": [
+            "89.96",
+            "88.04",
+            "50.00",
+            "4.12",
+            "0.00 (0)"
+          ]
+        },
+        {
+          "label": "No condition query",
+          "group": "",
+          "values": [
+            "90.52",
+            "89.08",
+            "49.72",
+            "3.72",
+            "0.12 (3)"
+          ]
+        },
+        {
+          "label": "No template-state bridge",
+          "group": "",
+          "values": [
+            "96.28",
+            "90.96",
+            "19.32",
+            "8.68",
+            "0.04 (1)"
+          ]
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "page": 24,
+      "title": "Fixed-skeleton chemistry",
+      "caption": "Table 8: Fixed-skeleton chemistry interventions. All arms use the same generated symmetry skeleton and 2,500 attempts; rates are percentages and S.U.N. counts are shown in parentheses.",
+      "columns": [
+        "Chemistry intervention",
+        "Valid (%)",
+        "Unique (%)",
+        "Novel (%)",
+        "Stable (%)",
+        "S.U.N. (%)"
+      ],
+      "rows": [
+        {
+          "label": "Original elements",
+          "group": "",
+          "values": [
+            "88.36",
+            "86.00",
+            "39.68",
+            "5.92",
+            "0.28 (7)"
+          ]
+        },
+        {
+          "label": "Element redraw, TE = 1.0",
+          "group": "",
+          "values": [
+            "87.44",
+            "85.24",
+            "41.84",
+            "5.56",
+            "0.04 (1)"
+          ]
+        },
+        {
+          "label": "Element redraw, TE = 2.5",
+          "group": "",
+          "values": [
+            "78.72",
+            "78.60",
+            "57.92",
+            "1.60",
+            "0.12 (3)"
+          ]
+        },
+        {
+          "label": "TE = 2.5 with uncapped clearance",
+          "group": "",
+          "values": [
+            "78.72",
+            "78.60",
+            "58.44",
+            "0.96",
+            "0.12 (3)"
+          ]
+        }
+      ]
+    },
+    {
+      "number": 9,
+      "page": 25,
+      "title": "CSP adaptation",
+      "caption": "Table 9: CSP adaptation with fixed single-hypothesis decoding on MP-20. All configurations use autoregressive template scores and the same coordinate-search settings. Updates denote the adaptation budget, and rank denotes adapter capacity. RMSE is averaged over matched structures.",
+      "columns": [
+        "Adaptation",
+        "Rank",
+        "Updates",
+        "MR (%)",
+        "RMSE"
+      ],
+      "rows": [
+        {
+          "label": "Unadapted model",
+          "group": "Reference",
+          "values": [
+            "—",
+            "0",
+            "57.95",
+            "0.05699"
+          ]
+        },
+        {
+          "label": "CE adapter",
+          "group": "Standard template CE",
+          "values": [
+            "8",
+            "2,000",
+            "58.38",
+            "0.05863"
+          ]
+        },
+        {
+          "label": "CE adapter",
+          "group": "Standard template CE",
+          "values": [
+            "16",
+            "2,000",
+            "58.35",
+            "0.05797"
+          ]
+        },
+        {
+          "label": "CE adapter",
+          "group": "Standard template CE",
+          "values": [
+            "32",
+            "2,000",
+            "58.42",
+            "0.05733"
+          ]
+        },
+        {
+          "label": "CE adapter",
+          "group": "Standard template CE",
+          "values": [
+            "64",
+            "2,000",
+            "58.68",
+            "0.05830"
+          ]
+        },
+        {
+          "label": "CE adapter",
+          "group": "Standard template CE",
+          "values": [
+            "32",
+            "4,000",
+            "58.57",
+            "0.05750"
+          ]
+        },
+        {
+          "label": "Feasible-set adapter",
+          "group": "Feasible-set supervision",
+          "values": [
+            "8",
+            "2,000",
+            "59.74",
+            "0.05751"
+          ]
+        },
+        {
+          "label": "Feasible-set adapter",
+          "group": "Feasible-set supervision",
+          "values": [
+            "16",
+            "2,000",
+            "60.19",
+            "0.05767"
+          ]
+        },
+        {
+          "label": "Feasible-set adapter",
+          "group": "Feasible-set supervision",
+          "values": [
+            "64",
+            "2,000",
+            "61.11",
+            "0.05851"
+          ]
+        },
+        {
+          "label": "Feasible-set adapter",
+          "group": "Feasible-set supervision",
+          "values": [
+            "32",
+            "4,000",
+            "61.35",
+            "0.05586"
+          ]
+        },
+        {
+          "label": "Full-model joint",
+          "group": "Joint optimization of de novo and CSP objectives",
+          "values": [
+            "—",
+            "2,000",
+            "56.89",
+            "0.05938"
+          ]
+        },
+        {
+          "label": "Full-model joint",
+          "group": "Joint optimization of de novo and CSP objectives",
+          "values": [
+            "—",
+            "4,000",
+            "57.13",
+            "0.06013"
+          ]
+        }
+      ]
+    },
+    {
+      "number": 10,
+      "page": 26,
+      "title": "Coordinate search",
+      "caption": "Table 10: Coordinate-search ablations for MP-20 CSP. Model parameters, template ranking, and the remaining decoding settings are fixed. Structural validity measures geometric validity and composition consistency. MR additionally applies the composition-validity criteria used in the CSP evaluation.",
+      "columns": [
+        "Coordinate decoding",
+        "MR (%)",
+        "RMSE",
+        "Structural valid (%)"
+      ],
+      "rows": [
+        {
+          "label": "Beam 16 (default)",
+          "group": "",
+          "values": [
+            "62.92",
+            "0.05847",
+            "99.44"
+          ]
+        },
+        {
+          "label": "Beam 4",
+          "group": "",
+          "values": [
+            "62.79",
+            "0.05864",
+            "99.56"
+          ]
+        },
+        {
+          "label": "Beam 1",
+          "group": "",
+          "values": [
+            "62.61",
+            "0.05850",
+            "99.60"
+          ]
+        },
+        {
+          "label": "Beam 16, distance mask removed",
+          "group": "",
+          "values": [
+            "62.96",
+            "0.05860",
+            "98.91"
+          ]
+        }
+      ]
+    }
+  ],
+  "highlights": {
+    "stable": [
+      1,
+      4,
+      9
+    ],
+    "wyformer": [
+      1,
+      3,
+      9
+    ],
+    "plaid": [
+      1,
+      1,
+      9
+    ],
+    "parameters": [
+      1,
+      4,
+      2
+    ],
+    "plaidParameters": [
+      1,
+      1,
+      2
+    ],
+    "novel": [
+      2,
+      7,
+      2
+    ],
+    "ssun": [
+      2,
+      7,
+      8
+    ],
+    "mp20": [
+      3,
+      5,
+      1
+    ],
+    "mpts52": [
+      3,
+      5,
+      3
+    ]
+  }
+}

@@ -75,5 +75,6 @@ test('index.html carries the generated cards in gallery order (npm run gallery)'
   assert.deepEqual(ids, sortCards(index.crystals).map((c) => c.id));
   assert.match(html, /judged S\.S\.U\.N\. by at least one of three MLIPs \(Orb, MACE, UMA\), and 3 of them by all three/);
   assert.match(html, /There is no DFT or experimental validation\./);
-  assert.ok(!/novel template/i.test(html));
+  const gallery = html.slice(html.indexOf('id="crystals"'), html.indexOf('id="results"'));
+  assert.ok(!/novel template/i.test(gallery));
 });

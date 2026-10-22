@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { canvasInkFraction, collectErrors } from './helpers.mjs';
+import { painted, canvasInkFraction, collectErrors } from './helpers.mjs';
 
 test('the story stage renders La5Bi3Cl into a non-blank canvas that rotates on drag', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop', 'drag rotation is covered on desktop');
@@ -11,9 +11,9 @@ test('the story stage renders La5Bi3Cl into a non-blank canvas that rotates on d
   await page.waitForFunction(() => (window.__crystalar?.storyView?.rendered ?? 0) > 0);
   // Show the finished crystal, then stop the slow auto-rotation so frames are comparable.
   await page.evaluate(() => window.__crystalar.story.goTo(1, { animate: false }));
-  await page.waitForTimeout(300);
+  await painted(page);
   await page.evaluate(() => window.__crystalar.storyView.setAutoRotate(0));
-  await page.waitForTimeout(200);
+  await painted(page);
   const ink = await canvasInkFraction(page, canvas);
   expect(ink).toBeGreaterThan(0.02);
   const before = await canvas.screenshot();
@@ -22,7 +22,7 @@ test('the story stage renders La5Bi3Cl into a non-blank canvas that rotates on d
   await page.mouse.down();
   await page.mouse.move(box.x + box.width / 2 + 160, box.y + box.height / 2 + 20, { steps: 8 });
   await page.mouse.up();
-  await page.waitForTimeout(250);
+  await painted(page);
   const after = await canvas.screenshot();
   expect(Buffer.compare(before, after)).not.toBe(0);
   const info2 = await page.evaluate(() => {
@@ -43,10 +43,10 @@ test('on mobile the story stage paints a non-blank canvas at a pixel ratio of at
   expect(dpr).toBeLessThanOrEqual(1.5);
   // The finished crystal, without the slow auto-rotation, so the two captures match.
   await page.evaluate(() => window.__crystalar.story.goTo(1, { animate: false }));
-  await page.waitForTimeout(300);
+  await painted(page);
   await page.evaluate(() => window.__crystalar.storyView.setAutoRotate(0));
   await page.locator('[data-story-stage]').scrollIntoViewIfNeeded();
-  await page.waitForTimeout(200);
+  await painted(page);
   const ink = await canvasInkFraction(page, page.locator('[data-story-stage] canvas'));
   expect(ink).toBeGreaterThan(0.02);
   expect(errors).toEqual([]);

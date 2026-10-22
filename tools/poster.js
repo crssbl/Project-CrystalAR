@@ -1,5 +1,5 @@
 // Poster export page: renders every static image of the site with the site's own renderer.
-import { createCrystalView } from '../js/render/crystal-view.js';
+import { createCrystalView } from '../js/render/crystal-view.min.js';
 import { finalDisplay, sceneAt } from '../js/lib/scene-state.js';
 import { stillProgress, STEPS } from '../js/lib/story-timeline.js';
 import { VIEWS, POSTER_SIZES, STILL_SIZE } from '../js/lib/views.js';
@@ -19,7 +19,8 @@ async function trace(slug) {
 }
 
 async function itemList() {
-  const items = [{ key: 'hero', file: 'assets/img/posters/denovo-75-hero.webp' }];
+  const items = [{ key: 'hero', file: 'assets/img/posters/denovo-75-hero.webp' },
+    ...[600, 800].map((size) => ({ key: `hero:${size}`, file: `assets/img/posters/denovo-75-hero-${size}.webp` }))];
   STEPS.forEach((_, i) => items.push({ key: `still:${i + 1}`, file: `assets/img/story/step-${i + 1}.webp` }));
   let slugs = ['denovo-75'];
   try {
@@ -27,7 +28,7 @@ async function itemList() {
     slugs = index.crystals.map((c) => c.slug);
   } catch { /* only the story crystal is exported yet */ }
   slugs.forEach((slug) => items.push({ key: `poster:${slug}`, file: `assets/img/posters/${slug}.webp` }));
-  items.push({ key: 'og', file: 'og-draft.png', screenshot: true });
+  items.push({ key: 'og', file: 'assets/img/og.png', screenshot: true });
   return items;
 }
 
@@ -75,6 +76,10 @@ async function renderOg() {
 }
 
 export async function renderItem(key) {
+  if (key === 'hero:600' || key === 'hero:800') {
+    const size = Number(key.split(':')[1]);
+    return renderView('denovo-75', size, size, VIEWS.hero, finalDisplay);
+  }
   if (key === 'hero') {
     const s = POSTER_SIZES.hero;
     return renderView('denovo-75', s, s, VIEWS.hero, finalDisplay);

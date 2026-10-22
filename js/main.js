@@ -1,8 +1,12 @@
 // Page bootstrap. Everything here is progressive enhancement: the page is complete without it.
-import { applyConfig } from './lib/config.js';
+import { initResultsLanding } from './lib/results-landing.js';
 
 const root = document.documentElement;
 root.classList.add('js');
+// Reserve the existing scroll track before its async module/data arrives. Native
+// fragment navigation then remains stable even after interaction ends calibration.
+const pendingStory = document.querySelector('[data-story]');
+pendingStory?.classList.add('is-loading');
 
 const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -72,16 +76,6 @@ function initTopbar() {
   targets.forEach((t) => nav.observe(t));
 }
 
-async function initConfig() {
-  try {
-    const response = await fetch('data/site.json', { cache: 'no-cache' });
-    if (!response.ok) return;
-    applyConfig(document, await response.json());
-  } catch {
-    // Static defaults in the HTML already match the config; nothing to do.
-  }
-}
-
 function initCitation() {
   const button = document.querySelector('[data-copy-bibtex]');
   const code = document.querySelector('[data-config-text="bibtex"]');
@@ -106,20 +100,46 @@ function initCitation() {
 initProgress();
 initReveal();
 initTopbar();
-initConfig();
+initResultsLanding();
 initCitation();
+
+// Illustrations and the complete result tables do not add to the initial module graph.
+const methodCards = document.querySelector('[data-method-cycle]');
+if (methodCards && 'IntersectionObserver' in window) {
+  const observer = new IntersectionObserver((entries) => {
+    if (!entries.some((entry) => entry.isIntersecting)) return;
+    observer.disconnect();
+    import('./illustrations.js').then((mod) => mod.init());
+  });
+  observer.observe(methodCards);
+}
+const allNumbers = document.querySelector('#paper-tables');
+if (allNumbers) {
+  let loaded = false;
+  allNumbers.addEventListener('toggle', () => {
+    if (!allNumbers.open || loaded) return;
+    loaded = true;
+    import('./results.js').then((mod) => mod.init()).catch((error) => {
+      loaded = false; // Native details still exposes every table; allow a later retry.
+      console.warn('[crystalar] result tabs unavailable:', error?.message ?? error);
+    });
+  });
+}
 
 // Heavier features load on demand so the first paint stays light.
 const features = [
   ['[data-hero-stage]', './hero.js'],
-  ['[data-story]', './story.js'],
-  ['[data-gallery]', './gallery.js'],
+  ['[data-story]', './story.min.js'],
+  ['[data-gallery]', './gallery.min.js'],
+  ['[data-figure-open]', './figure.js'],
 ];
 for (const [selector, path] of features) {
   if (document.querySelector(selector)) {
     import(path).then((mod) => mod.init?.()).catch((error) => {
       // A missing optional feature must never break the page.
       console.warn(`[crystalar] ${path} unavailable:`, error?.message ?? error);
+    }).finally(() => {
+      if (selector === '[data-story]') pendingStory?.classList.remove('is-loading');
     });
   }
 }

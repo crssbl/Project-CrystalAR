@@ -20,6 +20,7 @@ export const FONTS = [
     files: [
       'ibm-plex-sans-latin-400-normal.woff2', 'ibm-plex-sans-latin-500-normal.woff2',
       'ibm-plex-sans-latin-600-normal.woff2', 'ibm-plex-sans-greek-400-normal.woff2',
+      'ibm-plex-sans-greek-500-normal.woff2', 'ibm-plex-sans-greek-600-normal.woff2',
     ],
   },
   {

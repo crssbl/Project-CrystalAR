@@ -1,4 +1,4 @@
-// Renders posters, story stills and the OG draft through tools/poster.html in headless
+// Renders posters, story stills and the sharing image through tools/poster.html in headless
 // Chromium (WebGL via SwiftShader), and writes them into the repository.
 // Usage: node tools/render-assets.mjs <base-url-of-the-served-site> [--og-out <file>] [--only <key>...]
 //   e.g. node tools/render-assets.mjs http://127.0.0.1:8790/Project-CrystalAR/ --og-out ../og-draft.png
@@ -26,8 +26,9 @@ for (const item of items) {
   if (item.key === 'og') {
     if (!ogOut) continue;
     await page.evaluate((key) => window.__poster.renderItem(key), item.key);
-    await page.locator('[data-frame]').screenshot({ path: ogOut });
-    console.log(`og draft → ${ogOut}`);
+    const box = await page.locator('[data-frame]').boundingBox();
+    await page.screenshot({ path: ogOut, clip: { x: Math.round(box.x), y: Math.round(box.y), width: 1200, height: 630 } });
+    console.log(`og → ${ogOut}`);
     continue;
   }
   const dataUrl = await page.evaluate((key) => window.__poster.renderItem(key), item.key);

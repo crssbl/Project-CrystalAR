@@ -6,7 +6,7 @@ test('the arXiv buttons, BibTeX block and copy button use the published config',
   await page.goto('./');
   const site = await (await page.request.get('data/site.json')).json();
   const links = page.locator('[data-config-href="arxivUrl"]');
-  await expect(links).toHaveCount(3);
+  await expect(links).toHaveCount(4);
   for (const link of await links.all()) {
     await expect(link).toBeVisible();
     await expect(link).toHaveAttribute('href', site.arxivUrl);

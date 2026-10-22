@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /Project-CrystalAR/
+Sitemap: https://crssbl.github.io/Project-CrystalAR/sitemap.xml

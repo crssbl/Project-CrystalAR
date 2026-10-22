@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { tokensHtml } from '../js/lib/tokens.js';
 import { cardsHtml } from '../js/lib/cards.js';
 import { elementCss } from '../js/lib/palette.js';
-import { configVisibility, safeHttpUrl } from '../js/lib/config.js';
+import { configVisibility, safeHttpUrl, warnInvalidUrls } from '../js/lib/config.js';
 import { escapeHtml } from '../js/lib/format.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -23,8 +23,30 @@ export function replaceBetween(html, name, inner) {
   return `${html.slice(0, i + begin.length)}\n${inner}\n${html.slice(j)}`;
 }
 
-/** Mirror the optional config into HTML so the published links/citation also work without JS. */
+/** Generate a link only after an explicit valid URL; unavailable Code is plain text. */
+export function codeControlHtml(value, placement) {
+  const href = safeHttpUrl(value);
+  const className = { topbar: 'pill', hero: 'btn', paper: '' }[placement];
+  if (className === undefined) throw new Error(`unknown Code placement: ${placement}`);
+  if (!href) return placement === 'topbar' ? '' : `<span class="${className ? className + ' ' : ''}code-soon" data-code-label>Code · coming soon</span>`;
+  const attrs = `${className ? `class="${className}" ` : ''}href="${escapeHtml(href)}" data-config-href="codeUrl" target="_blank" rel="noopener"`;
+  const newTab = '<span class="sr-only"> (opens in a new tab)</span>';
+  if (placement === 'paper') {
+    const url = new URL(href);
+    return `<a ${attrs}><span class="l-name">Code</span><span class="l-meta">${escapeHtml(url.pathname.replace(/^\/+|\/+$/g, '') || url.hostname)}</span>${newTab}</a>`;
+  }
+  const icon = placement === 'topbar'
+    ? '<svg class="ext" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M4 2h6v6M10 2 3 9"/></svg>'
+    : '<svg class="ico" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="m7 6-4 4 4 4M13 6l4 4-4 4M11.2 4.5 8.8 15.5"/></svg>';
+  return `<a ${attrs}>${placement === 'hero' ? icon : ''}Code${placement === 'topbar' ? icon : ''}${newTab}</a>`;
+}
+
+/** Configuration is compiled into HTML; runtime responses cannot override this state. */
 export function siteConfigHtml(html, site) {
+  warnInvalidUrls(site);
+  for (const placement of ['topbar', 'hero', 'paper']) {
+    html = replaceBetween(html, `code-${placement}`, codeControlHtml(site.codeUrl, placement));
+  }
   const visible = configVisibility(site);
   html = html.replace(/<([a-z][\w-]*)\b([^<>]*)>/gi, (tag, name, attrs) => {
     const requires = attrs.match(/\bdata-config-requires="([^"]+)"/)?.[1];

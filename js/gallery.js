@@ -120,7 +120,7 @@ export function init() {
     const current = () => mine === session && dialog.open;
     try {
       const [{ createCrystalView }, { hasWebGL2 }, { finalDisplay }, { VIEWS }] = await Promise.all([
-        import('./render/crystal-view.js'), import('./render/three-loader.js'),
+        import('./render/crystal-view.min.js'), import('./render/three-loader.js'),
         import('./lib/scene-state.js'), import('./lib/views.js'),
       ]);
       if (!current()) return;
@@ -240,4 +240,6 @@ export function init() {
       first.focus();
     }
   });
+  // Expose the card action only after its handler exists; early clicks must not be lost.
+  gallery.querySelectorAll('[data-open]').forEach((button) => { button.disabled = false; });
 }

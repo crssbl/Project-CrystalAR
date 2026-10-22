@@ -6,15 +6,17 @@
   "type": "module",
   "scripts": {
     "test:unit": "node --test tests/unit/",
-    "test:html": "html-validate index.html tools/poster.html",
+    "test:html": "html-validate index.html 404.html tools/poster.html",
     "test:e2e": "playwright test",
-    "test": "node --test tests/unit/ && html-validate index.html tools/poster.html && playwright test",
+    "test": "node --test tests/unit/ && html-validate index.html 404.html tools/poster.html && playwright test",
     "vendor:three": "node tools/vendor-three.mjs",
     "vendor:fonts": "node tools/vendor-fonts.mjs",
-    "gallery": "node tools/render-gallery.mjs"
+    "gallery": "node tools/render-gallery.mjs",
+    "content": "node tools/render-gallery.mjs && node tools/render-illustrations.mjs && node tools/render-results.mjs && node tools/render-metadata.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.64.1",
+    "axe-core": "4.10.3",
     "esbuild": "0.28.2",
     "html-validate": "10.0.0",
     "three": "0.186.1"

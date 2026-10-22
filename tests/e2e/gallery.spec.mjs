@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { collectErrors, canvasInkFraction } from './helpers.mjs';
+import { painted, collectErrors, canvasInkFraction } from './helpers.mjs';
 
 const ORDER = ['denovo:75', 'denovo:1798', 'denovo:2219', 'denovo:1431', 'denovo:2006', 'denovo:570', 'denovo:143',
   'denovo:53', 'denovo:2435', 'denovo:766', 'denovo:2002', 'denovo:1559', 'denovo:1190'];
@@ -44,6 +44,7 @@ test('keyboard: open a card, Tab stays inside the dialog, Esc closes and focus r
   const errors = collectErrors(page);
   await page.goto('./');
   const opener = page.locator('.card').nth(1).locator('.card-open');
+  await expect(opener).toBeEnabled();
   await opener.focus();
   await page.keyboard.press('Enter');
   const dialog = page.locator('[data-dialog]');
@@ -75,7 +76,7 @@ test('the dialog shows a rotatable 3D crystal and replays its generation to the 
   const canvas = page.locator('[data-dialog-stage] canvas');
   await expect(canvas).toBeVisible();
   await page.evaluate(() => window.__crystalar.dialog.view.setAutoRotate(0));
-  await page.waitForTimeout(200);
+  await painted(page);
   expect(await canvasInkFraction(page, canvas)).toBeGreaterThan(0.03);
   const yaw0 = await page.evaluate(() => window.__crystalar.dialog.view.yaw);
   await canvas.focus();

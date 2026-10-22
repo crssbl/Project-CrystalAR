@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { collectErrors, canvasInkFraction, withoutWebGL, expectStillsForEveryStep } from './helpers.mjs';
+import { painted, collectErrors, canvasInkFraction, withoutWebGL, expectStillsForEveryStep } from './helpers.mjs';
 
 const TITLES = ['Given a space group', 'Wyckoff template', 'Lattice', 'Coarse to fine', 'Symmetry expansion', 'The crystal'];
 
@@ -25,7 +25,6 @@ test.describe('desktop: pinned, scroll-driven story', () => {
     for (let i = 0; i < TITLES.length; i += 1) {
       const p = await settled(page, i);
       await page.evaluate((v) => window.__crystalar.story.goTo(v), p);
-      await page.waitForTimeout(250);
       const on = page.locator('.story-step.is-on');
       await expect(on).toHaveCount(1);
       await expect(on).toHaveAttribute('data-step', String(i));
@@ -46,12 +45,12 @@ test.describe('desktop: pinned, scroll-driven story', () => {
     await expect(scrubber).toBeVisible();
     await scrubber.focus();
     await page.keyboard.press('Home');
-    await page.waitForTimeout(200);
+    await painted(page);
     await expect(page.locator('.story-step.is-on')).toHaveAttribute('data-step', '0');
     const readouts = [];
     for (let k = 0; k < 30; k += 1) {
       await page.keyboard.press('ArrowRight');
-      await page.waitForTimeout(140);
+      await painted(page);
       readouts.push(await page.locator('[data-story-readout]').innerText());
     }
     const text = readouts.join('\n');
@@ -71,7 +70,7 @@ test.describe('desktop: pinned, scroll-driven story', () => {
     const errors = collectErrors(page);
     await openStory(page);
     await page.locator('[data-story-scrubber]').fill('560');
-    await page.waitForTimeout(250);
+    await painted(page);
     await expect(page.locator('.story-step.is-on')).toHaveAttribute('data-step', '3');
     await expect(page.locator('[data-story-readout]')).toContainText('Level');
     await expect(page.locator('.bit.is-active').first()).toBeVisible();

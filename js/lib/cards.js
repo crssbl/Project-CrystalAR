@@ -28,7 +28,7 @@ export function cardHtml(entry) {
   <figure class="card-figure"><img src="${escapeHtml(c.poster)}" alt="" width="640" height="640" loading="lazy" decoding="async"></figure>
   <div class="card-body">
     <div class="card-head">
-      <h3 class="card-title"><button class="card-open" type="button" aria-haspopup="dialog" data-open="${escapeHtml(c.slug)}"><span class="formula">${c.formulaHtml}</span><span class="sr-only">, open 3D view</span></button></h3>
+      <h3 class="card-title"><button class="card-open" type="button" aria-haspopup="dialog" data-open="${escapeHtml(c.slug)}" disabled><span class="formula">${c.formulaHtml}</span><span class="sr-only">, open 3D view</span></button></h3>
       <span class="card-id">${escapeHtml(c.id)}</span>
     </div>
     <p class="card-sg">${c.sgHtml} <span>#${c.sgNumber}</span></p>

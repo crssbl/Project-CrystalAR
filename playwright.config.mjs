@@ -39,7 +39,7 @@ export default defineConfig({
     { name: 'mobile', use: { ...devices['Pixel 7'], viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 } },
   ],
   webServer: {
-    command: `${python} -m http.server --bind 127.0.0.1 ${port} --directory "${serveDir}"`,
+    command: `${python} tools/preview_server.py --port ${port} --directory "${serveDir}"`,
     url: `http://127.0.0.1:${port}/Project-CrystalAR/index.html`,
     reuseExistingServer: true,
     timeout: 30_000,

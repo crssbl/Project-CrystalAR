@@ -243,8 +243,16 @@ export class CrystalView {
   }
 
   applyRotation() {
-    if (Math.abs(this.pitch - (this.fitPitch ?? this.pitch)) > 0.01) this.fitCamera();
+    const fit = this.cameraFit();
+    const offset = this.options.offsetY?.() ?? 0;
+    if (fit !== this.fitMode || Math.abs(this.pitch - (this.fitPitch ?? this.pitch)) > 0.01
+        || offset !== this.fitOffset
+        || (fit === 'view' && Math.abs(this.yaw - (this.fitYaw ?? this.yaw)) > 0.01)) this.fitCamera();
     this.world.rotation.set(this.pitch, this.yaw, 0, 'XYZ');
+  }
+
+  cameraFit() {
+    return typeof this.options.fit === 'function' ? this.options.fit() : this.options.fit;
   }
 
   /**
@@ -257,13 +265,17 @@ export class CrystalView {
     const aspect = Math.max(0.2, this.camera.aspect || 1);
     const tanV = Math.tan(fov / 2);
     const tanH = tanV * aspect;
+    const offset = this.options.offsetY?.() ?? 0;
+    const shiftY = 2 * offset / Math.max(1, this.container.clientHeight);
+    const tanUp = tanV * Math.max(0.1, 1 - shiftY);
+    const tanDown = tanV * Math.max(0.1, 1 + shiftY);
     const p = Math.min(1.3, Math.abs(this.pitch));
     const vert = hz * Math.cos(p) + rxy * Math.sin(p);
     const depth = rxy * Math.cos(p) + hz * Math.sin(p);
     let distance = (Math.max(vert / tanV, rxy / tanH) + depth * 0.42) * (this.options.margin ?? 1.06);
-    if (this.options.fit === 'view' && this.fitPoints) {
-      // Exact framing for a fixed view (posters, hero): every point must satisfy
-      // |x| / (D − z) ≤ tan(fov/2) horizontally and vertically.
+    if (this.cameraFit() === 'view' && this.fitPoints) {
+      // Fit the current pose, including the shifted frustum used above a readout.
+      // Keep the centred bound too, so reserving readout space never zooms in.
       const T = this.T;
       const m = new T.Matrix4().makeRotationFromEuler(new T.Euler(this.pitch, this.yaw, 0, 'XYZ'))
         .multiply(new T.Matrix4().makeRotationX(-Math.PI / 2));
@@ -271,15 +283,25 @@ export class CrystalView {
       distance = 0;
       for (const [x, y, z, r] of this.fitPoints) {
         v.set(x, y, z).applyMatrix4(m);
-        distance = Math.max(distance, v.z + r + Math.max((Math.abs(v.x) + r) / tanH, (Math.abs(v.y) + r) / tanV));
+        distance = Math.max(distance, v.z + r + Math.max(
+          (Math.abs(v.x) + r) / tanH, (Math.abs(v.y) + r) / tanV,
+          (v.y + r) / tanUp, (r - v.y) / tanDown,
+        ));
       }
       distance *= this.options.margin ?? 1.04;
     }
     this.fitPitch = this.pitch;
+    this.fitYaw = this.yaw;
+    this.fitMode = this.cameraFit();
     this.camera.position.set(0, 0, distance);
     this.camera.near = Math.max(0.1, distance - depth * 3);
     this.camera.far = distance + depth * 3;
     this.camera.lookAt(0, 0, 0);
+    this.fitOffset = offset;
+    if (this.fitOffset) {
+      const { clientWidth: w, clientHeight: h } = this.container;
+      this.camera.setViewOffset(w, h, 0, this.fitOffset, w, h);
+    } else this.camera.clearViewOffset();
     this.camera.updateProjectionMatrix();
   }
 

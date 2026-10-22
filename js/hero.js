@@ -45,7 +45,7 @@ export function init() {
     if (!hasWebGL2()) { api.state = 'no-webgl'; return; }
     try {
       const [{ createCrystalView }, { sceneAt }, timeline, { VIEWS }] = await Promise.all([
-        import('./render/crystal-view.js'), import('./lib/scene-state.js'),
+        import('./render/crystal-view.min.js'), import('./lib/scene-state.js'),
         import('./lib/story-timeline.js'), import('./lib/views.js'),
       ]);
       const trace = await (await fetch('data/crystals/denovo-75.json')).json();

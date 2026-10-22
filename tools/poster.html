@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- security:begin -->
+<meta http-equiv="Content-Security-Policy" content="default-src &#39;self&#39;; script-src &#39;self&#39; &#39;sha256-WF3tKZZu2276p8a3KG3AM//fjG6G2dXdjcwv3kxJA+A=&#39;; style-src &#39;self&#39; &#39;unsafe-inline&#39;; img-src &#39;self&#39;; font-src &#39;self&#39;; connect-src &#39;self&#39;; object-src &#39;none&#39;; base-uri &#39;self&#39;; form-action &#39;none&#39;; frame-src &#39;none&#39;; worker-src &#39;none&#39;">
+<!-- security:end -->
 <meta name="robots" content="noindex">
 <title>CrystalAR poster export</title>
 <link rel="stylesheet" href="../assets/css/site.css">
@@ -12,7 +15,7 @@
 <body class="poster-page">
 <main class="poster-main">
   <h1 class="poster-h1">Poster export</h1>
-  <p class="poster-help">Renders posters, story stills and the OG draft with the site's own renderer. Used by <code>tools/render-assets.mjs</code>; it also works by hand: pick an item and press Download.</p>
+  <p class="poster-help">Renders posters, story stills and the sharing image with the site's own renderer. Used by <code>tools/render-assets.mjs</code>; it also works by hand: pick an item and press Download.</p>
   <form class="poster-form" data-form>
     <label>Item <select data-item></select></label>
     <button class="btn" type="button" data-render>Render</button>

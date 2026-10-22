@@ -91,7 +91,7 @@ test('Lighthouse stays outside repository dependencies and README pins the scrat
 
 test('README records where every self-hosted font file comes from', async () => {
   const fonts = (await readdir(new URL('../../assets/fonts/', import.meta.url))).filter((f) => f.endsWith('.woff2'));
-  assert.equal(fonts.length, 7);
+  assert.equal(fonts.length, FONTS.flatMap((f) => f.files).length + 1);
   for (const file of fonts) assert.ok(readme.includes(file), file);
   // One version, from tools/vendor-fonts.mjs: the README names it for every package and no
   // other, and assets/fonts/VERSION (written by the script) records the same.
@@ -104,10 +104,10 @@ test('README records where every self-hosted font file comes from', async () => 
   // The subset ranges match the @font-face rules.
   const css = await read('assets/css/site.css');
   const ranges = new Set([...css.matchAll(/unicode-range:\s*([^;]+);/g)].map((m) => m[1].trim()));
-  assert.equal(ranges.size, 2);
+  assert.equal(ranges.size, 3);
   for (const range of ranges) assert.ok(readme.includes(range), range);
   // tools/vendor-fonts.mjs re-creates exactly these files, and every one is used by the CSS.
-  assert.deepEqual(FONTS.flatMap((f) => f.files).sort(), [...fonts].sort());
+  assert.deepEqual([...FONTS.flatMap((f) => f.files), 'dejavu-sans-symbols-2.37.woff2'].sort(), [...fonts].sort());
   const licences = (await readdir(new URL('../../assets/fonts/', import.meta.url))).filter((f) => f.startsWith('OFL-'));
   assert.deepEqual(FONTS.map((f) => f.licence).sort(), licences.sort());
   for (const file of fonts) assert.ok(css.includes(`../fonts/${file}`), `${file} in site.css`);

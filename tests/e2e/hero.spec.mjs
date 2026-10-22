@@ -21,7 +21,8 @@ test('the static poster is the LCP element and the layout does not shift', async
   await observePaint(page);
   await page.goto('./');
   await page.waitForLoadState('networkidle');
-  await page.waitForTimeout(2500);
+  await page.waitForFunction(() => window.__paint.lcp.at(-1)?.cls.includes('hero-poster'));
+  await page.evaluate(() => document.fonts.ready);
   const paint = await page.evaluate(() => window.__paint);
   const last = paint.lcp.at(-1);
   expect(last.tag).toBe('IMG');
@@ -32,12 +33,14 @@ test('the static poster is the LCP element and the layout does not shift', async
 
 test.describe('without JavaScript', () => {
   test.use({ javaScriptEnabled: false });
-  test('the poster is shown before (and without) any script', async ({ page }) => {
+  test('the poster is shown before (and without) any script', async ({ page }, testInfo) => {
     const errors = collectErrors(page);
     await page.goto('./');
     const poster = page.locator('.hero-poster');
     await expect(poster).toBeVisible();
-    expect(await poster.evaluate((img) => img.complete && img.naturalWidth)).toBe(1200);
+    expect(await poster.evaluate((img) => img.complete && img.naturalWidth > 0)).toBe(true);
+    const chosen = await poster.evaluate((img) => new URL(img.currentSrc).pathname);
+    expect(chosen).toMatch(new RegExp(`hero-${testInfo.project.name === 'mobile' ? 800 : 600}\\.webp$`));
     expect(errors).toEqual([]);
   });
 });
@@ -91,7 +94,7 @@ test.describe('reduced motion', () => {
     page.on('request', (r) => requests.push(r.url()));
     await page.goto('./');
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(2500);
+    await page.waitForFunction(() => window.__crystalar?.hero?.state === 'reduced-motion');
     expect(requests.filter(isThree)).toEqual([]);
     expect(await page.evaluate(() => window.__crystalar?.hero?.state)).toBe('reduced-motion');
     await expect(page.locator('[data-hero-stage] canvas')).toHaveCount(0);
@@ -110,7 +113,7 @@ test('first-screen transfer without 3D stays under 500 KB', async ({ page }) => 
   });
   await page.goto('./');
   await page.waitForLoadState('networkidle');
-  await page.waitForTimeout(1500);
+  await page.waitForFunction(() => ['live', 'reduced-motion', 'no-webgl'].includes(window.__crystalar?.hero?.state));
   const total = [...sizes.values()].reduce((a, b) => a + b, 0);
   test.info().annotations.push({ type: 'hero-transfer-bytes', description: String(total) });
   console.log(`hero transfer without 3D: ${(total / 1024).toFixed(1)} KB over ${sizes.size} requests`);

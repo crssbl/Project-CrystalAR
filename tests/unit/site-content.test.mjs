@@ -28,7 +28,7 @@ const FORBIDDEN = [
   new RegExp(['Open', 'Review'].join(''), 'i'),
   new RegExp(['under', '\\s+', 'review'].join(''), 'i'),
   new RegExp(['sub', 'mission'].join(''), 'i'),
-  new RegExp(['20', '27'].join('')),
+  new RegExp(['\\b', '20', '27', '\\b'].join('')),
 ];
 // Third-party code is not page content; its minified numbers can contain any digits.
 const isThirdParty = (f) => rel(f).startsWith(`vendor${path.sep}`) || /OFL-.*\.txt$/.test(f);
@@ -40,9 +40,10 @@ test('the permanent results anchor occurs once on the Benchmarks section and the
   assert.equal(targets[0][1], 'section');
   assert.match(targets[0][0], /aria-labelledby="results-title"/);
   const section = html.slice(targets[0].index).match(/^[\s\S]*?<\/section>/)[0];
-  assert.match(section, /<p class="kicker">Benchmarks<\/p>/);
+  assert.match(section, /<p class="kicker"><span class="num">06<\/span>Benchmarks<\/p>/);
   assert.match(section, /<h2 id="results-title">/);
-  assert.match(section, /Number cards and the full paper tables/);
+  assert.match(section, /class="number-cards"/);
+  assert.match(section, /id="paper-tables"/);
   const topbar = html.match(/<header\b[^>]*\sid="topbar"[^>]*>[\s\S]*?<\/header>/)[0];
   assert.match(topbar, /<nav\b[^>]*>[\s\S]*?<a href="#results">Results<\/a>[\s\S]*?<\/nav>/);
 });
@@ -121,7 +122,7 @@ test('no third-party scripts, CDNs or analytics in the page', async () => {
   const html = await readFile(path.join(root, 'index.html'), 'utf8');
   const scripts = [...html.matchAll(/<script[^>]*src="([^"]+)"/g)].map((m) => m[1]);
   for (const src of scripts) assert.ok(!/^(https?:)?\/\//.test(src), src);
-  const styles = [...html.matchAll(/<link[^>]*href="([^"]+)"/g)].map((m) => m[1]);
+  const styles = [...html.matchAll(/<link\s+rel="(?:stylesheet|preload|icon|apple-touch-icon)"[^>]*href="([^"]+)"/g)].map((m) => m[1]);
   for (const href of styles) assert.ok(!/^(https?:)?\/\//.test(href), href);
   assert.doesNotMatch(html, /googletagmanager|google-analytics|plausible|gtag\(/i);
 });

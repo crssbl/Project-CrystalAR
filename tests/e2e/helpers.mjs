@@ -138,9 +138,9 @@ export async function canvasInkFraction(page, locator) {
   await locator.evaluate((el) => { el.style.visibility = ''; });
   return page.evaluate(async ([a, b]) => {
     const load = async (b64) => {
-      const img = new Image();
-      img.src = `data:image/png;base64,${b64}`;
-      await img.decode();
+      // Decode test screenshots in memory so the same-origin image policy stays intact.
+      const bytes = Uint8Array.from(atob(b64), (char) => char.charCodeAt(0));
+      const img = await createImageBitmap(new Blob([bytes], { type: 'image/png' }));
       const c = document.createElement('canvas');
       c.width = img.width;
       c.height = img.height;
@@ -155,4 +155,67 @@ export async function canvasInkFraction(page, locator) {
     }
     return diff / (da.length / 4);
   }, [shown.toString('base64'), hidden.toString('base64')]);
+}
+
+/** Project conservative boxes for the actual visible meshes, including each instance. */
+export async function storyScreenBounds(page) {
+  return page.evaluate(() => {
+    const view = window.__crystalar.storyView, T = view.T;
+    view.scene.updateMatrixWorld(true);
+    const instance = new T.Matrix4(), matrix = new T.Matrix4(), point = new T.Vector3();
+    const bounds = { left: Infinity, right: -Infinity, top: -Infinity, bottom: Infinity };
+    view.content.traverse((mesh) => {
+      if (!mesh.isMesh || !mesh.visible || mesh.material.opacity === 0) return;
+      mesh.geometry.computeBoundingBox();
+      const box = mesh.geometry.boundingBox;
+      const count = mesh.isInstancedMesh ? mesh.count : 1;
+      for (let i = 0; i < count; i++) {
+        if (mesh.isInstancedMesh) {
+          mesh.getMatrixAt(i, instance);
+          matrix.multiplyMatrices(mesh.matrixWorld, instance);
+        } else matrix.copy(mesh.matrixWorld);
+        for (const x of [box.min.x, box.max.x]) for (const y of [box.min.y, box.max.y]) for (const z of [box.min.z, box.max.z]) {
+          point.set(x, y, z).applyMatrix4(matrix).project(view.camera);
+          bounds.left = Math.min(bounds.left, point.x);
+          bounds.right = Math.max(bounds.right, point.x);
+          bounds.top = Math.max(bounds.top, point.y);
+          bounds.bottom = Math.min(bounds.bottom, point.y);
+        }
+      }
+    });
+    const stage = view.container.getBoundingClientRect();
+    const labels = [...view.overlay.children].filter((el) => !el.hidden).map((el) => {
+      const r = el.getBoundingClientRect();
+      return { text: el.textContent, left: r.left - stage.left, right: r.right - stage.left, top: r.top - stage.top, bottom: r.bottom - stage.top };
+    });
+    return { ...bounds, labels, width: stage.width, height: stage.height, fit: view.fitMode };
+  });
+}
+
+/** Measure the coloured atoms in the finished stage, independently of camera settings. */
+export async function atomPixelWidth(page, canvas) {
+  const bytes = await canvas.screenshot();
+  const pixels = await page.evaluate(async (bytes) => {
+    const image = await createImageBitmap(new Blob([new Uint8Array(bytes)], { type: 'image/png' }));
+    const scratch = document.createElement('canvas');
+    scratch.width = image.width; scratch.height = image.height;
+    const context = scratch.getContext('2d');
+    context.drawImage(image, 0, 0);
+    const data = context.getImageData(0, 0, image.width, image.height).data;
+    let left = image.width, right = -1;
+    for (let i = 0; i < data.length; i += 4) {
+      const rgb = [data[i], data[i + 1], data[i + 2]];
+      if (Math.max(...rgb) > 90 && Math.max(...rgb) - Math.min(...rgb) > 40) {
+        const x = (i / 4) % image.width;
+        left = Math.min(left, x); right = Math.max(right, x);
+      }
+    }
+    return { width: Math.max(0, right - left + 1), imageWidth: image.width };
+  }, [...bytes]);
+  return pixels.width * (await canvas.boundingBox()).width / pixels.imageWidth;
+}
+
+/** Wait for observer/layout work across two paints, without a timed delay. */
+export async function painted(page) {
+  await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
 }

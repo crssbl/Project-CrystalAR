@@ -5,5 +5,16 @@
   "raw_structures": "<local source root>/evaluation/raw/structures.jsonl",
   "assessment_dir": "<local source root>/assessment",
   "generator_root": "<local generator source tree containing crystalformer/>",
-  "provenance_manifest": "<unpublished notes directory outside this repository>/provenance-manifest.json"
+  "provenance_manifest": "<unpublished notes directory outside this repository>/provenance-manifest.json",
+  "paper_pdf": "<local paper directory>/arxiv-v1.pdf",
+  "paper_tex": "<local paper sources>/paper.tex",
+  "architecture_source": "<local paper sources>/architecture.pdf",
+  "numbers_report": "<unpublished notes directory outside this repository>/verify_numbers_report.md",
+  "figure_report": "<unpublished notes directory outside this repository>/figure_source_report.json",
+  "numbers_sources": {
+    "de_novo": "<local results directory>/de-novo.json",
+    "symmetry": "<local results directory>/symmetry.md",
+    "csp_mp20": "<local results directory>/csp-mp20.json",
+    "csp_mpts52": "<local results directory>/csp-mpts52.json"
+  }
 }

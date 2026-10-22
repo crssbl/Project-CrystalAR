@@ -1,7 +1,7 @@
 // The generation story of La5Bi3Cl on the dark stage.
 // Desktop: the stage is pinned and scroll drives the timeline. Below 768px, or with reduced
 // motion: step cards with buttons. Without WebGL: pre-rendered stills. Without JS: poster + text.
-import { createCrystalView } from './render/crystal-view.js';
+import { createCrystalView } from './render/crystal-view.min.js';
 import { hasWebGL2 } from './render/three-loader.js';
 import { sceneAt } from './lib/scene-state.js';
 import { STEPS, stepSettled, progressToState } from './lib/story-timeline.js';
@@ -29,6 +29,7 @@ export async function init() {
   const tokenEls = [...root.querySelectorAll('[data-tok]')];
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
   const wide = window.matchMedia('(min-width: 768px)');
+  const compact = window.matchMedia('(max-width: 900px)');
 
   const trace = await (await fetch(TRACE_URL)).json();
   const frames = keyFrames(trace);
@@ -216,7 +217,15 @@ export async function init() {
       return;
     }
     try {
-      view = await createCrystalView(stage, { ...VIEWS.story, label: 'La5Bi3Cl being generated', canvasClass: 'crystal-canvas story-canvas' });
+      view = await createCrystalView(stage, {
+        ...VIEWS.story,
+        // The square tablet stage needs a fit to its actual aspect and current pose.
+        // Wide stages and step cards retain their rotation-safe camera.
+        fit: () => wide.matches && compact.matches && !reduced.matches ? 'view' : 'rotation',
+        // Keep the bottom readout clear without reducing the crystal's size.
+        offsetY: () => wide.matches && compact.matches && !reduced.matches ? (readout.offsetHeight + 28) / 2 : 0,
+        label: 'La5Bi3Cl being generated', canvasClass: 'crystal-canvas story-canvas',
+      });
       if (!view) {
         useStills();
         return;

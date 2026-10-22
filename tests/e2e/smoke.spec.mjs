@@ -1,5 +1,7 @@
+import { readFile } from 'node:fs/promises';
+import { siteConfigHtml } from '../../tools/render-gallery.mjs';
 import { test, expect } from '@playwright/test';
-import { collectErrors, scrollThrough } from './helpers.mjs';
+import { painted, collectErrors, scrollThrough } from './helpers.mjs';
 
 const AUTHORS = [
   'Ziqiao Meng', 'Rongsheng Chen', 'Zhi Zheng', 'Nikita Kazeev',
@@ -14,14 +16,14 @@ test('page loads without console errors and shows the hero', async ({ page }) =>
   await expect(page.locator('.author-list li a')).toHaveText(AUTHORS);
   await expect(page.locator('.affil')).toContainText('National University of Singapore');
   await expect(page.locator('.affil')).toContainText('Southern University of Science and Technology');
-  await expect(page.locator('.actions a.btn--primary')).toHaveAttribute('href', 'https://github.com/crssbl/CrystalAR');
+  await expect(page.locator('.actions a.btn--primary')).toHaveAttribute('href', 'https://arxiv.org/abs/2610.27762');
   await page.evaluate(() => document.fonts.ready);
   const fonts = await page.evaluate(() => [
     '600 32px Sora', '400 16px "IBM Plex Sans"', '400 13px "IBM Plex Mono"',
   ].map((f) => document.fonts.check(f)));
   expect(fonts).toEqual([true, true, true]);
   await scrollThrough(page);
-  await page.waitForTimeout(300);
+  await painted(page);
   expect(errors).toEqual([]);
 });
 
@@ -49,17 +51,17 @@ test('the permanent results section is reached from the top bar or the mobile de
   }
   await expect(page).toHaveURL(/#results$/);
   await expect(page.locator('[id="results"]')).toHaveCount(1);
-  await expect(page.locator('section#results .kicker')).toHaveText('Benchmarks');
+  await expect(page.locator('section#results .kicker')).toHaveText('06Benchmarks');
   await expect(page.locator('#results-title')).toBeInViewport();
   expect(errors).toEqual([]);
 });
 
 test('optional paper links stay hidden while their config is null', async ({ page }) => {
   const errors = collectErrors(page);
-  await page.route('**/data/site.json', async (route) => {
-    const response = await route.fetch();
-    await route.fulfill({ json: { ...await response.json(), arxivUrl: null, bibtex: null, venue: null } });
-  });
+  const html = await readFile(new URL('../../index.html', import.meta.url), 'utf8');
+  const site = JSON.parse(await readFile(new URL('../../data/site.json', import.meta.url), 'utf8'));
+  const generated = siteConfigHtml(html, { ...site, arxivUrl: null, bibtex: null, venue: null });
+  await page.route('**/Project-CrystalAR/', (route) => route.fulfill({ body: generated, contentType: 'text/html' }));
   await page.goto('./');
   await page.waitForLoadState('networkidle');
   const optional = page.locator('[data-config-requires]');
